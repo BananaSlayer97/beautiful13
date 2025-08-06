@@ -440,6 +440,391 @@ th {
   gap: 15px;
 }
 
+/* 美德打卡表样式 */
+.virtue-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.table-header {
+  display: grid;
+  grid-template-columns: 300px repeat(7, 1fr);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: bold;
+  padding: 15px 0;
+}
+
+.virtue-name-header {
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  font-size: 1.1rem;
+}
+
+.day-header {
+  text-align: center;
+  padding: 0 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+}
+
+.day-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.day-date {
+  font-size: 0.8rem;
+  opacity: 0.9;
+}
+
+.virtue-row {
+  display: grid;
+  grid-template-columns: 300px repeat(7, 1fr);
+  border-bottom: 1px solid #e2e8f0;
+  transition: background-color 0.2s ease;
+}
+
+.virtue-row:hover {
+  background-color: #f7fafc;
+}
+
+.virtue-row.focus-virtue {
+  background: linear-gradient(90deg, rgba(102, 126, 234, 0.1) 0%, rgba(255,255,255,1) 100%);
+  border-left: 4px solid #667eea;
+}
+
+.virtue-info {
+  padding: 20px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.virtue-info:hover {
+  background-color: #edf2f7;
+}
+
+.virtue-name {
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 5px;
+  font-size: 1rem;
+}
+
+.virtue-desc {
+  color: #718096;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.virtue-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 10px;
+  border-left: 1px solid #e2e8f0;
+}
+
+.checkbox-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.virtue-checkbox {
+  opacity: 0;
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.checkbox-label {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #cbd5e0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+}
+
+.virtue-checkbox:checked + .checkbox-label {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: #667eea;
+}
+
+.virtue-checkbox:checked + .checkbox-label::after {
+  content: '✓';
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.checkbox-label:hover {
+  border-color: #667eea;
+  transform: scale(1.1);
+}
+
+/* 周导航样式 */
+.week-navigation-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.week-navigation {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: #f7fafc;
+  padding: 10px 20px;
+  border-radius: 25px;
+  border: 1px solid #e2e8f0;
+}
+
+.week-display {
+  font-weight: 600;
+  color: #2d3748;
+  min-width: 80px;
+  text-align: center;
+}
+
+/* 侧边栏样式 */
+.focus-select {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 1rem;
+  margin-bottom: 10px;
+  background: white;
+}
+
+.focus-description {
+  color: #718096;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  padding: 10px;
+  background: #f7fafc;
+  border-radius: 6px;
+}
+
+.note-textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 12px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  resize: vertical;
+  font-family: inherit;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.note-textarea:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.note-count {
+  text-align: right;
+  color: #718096;
+  font-size: 0.8rem;
+  margin-top: 5px;
+}
+
+.streak-current {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.streak-number {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #d69e2e;
+}
+
+.streak-label {
+  font-size: 1rem;
+  color: #744210;
+}
+
+.streak-best {
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+  opacity: 0.8;
+}
+
+.streak-motivation {
+  font-size: 0.9rem;
+  font-style: italic;
+  opacity: 0.9;
+}
+
+/* 用户信息样式 */
+.user-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin: 20px 0;
+  background: rgba(255,255,255,0.1);
+  padding: 15px 25px;
+  border-radius: 25px;
+  backdrop-filter: blur(10px);
+}
+
+.user-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: white;
+  border: 2px solid rgba(255,255,255,0.3);
+}
+
+.user-details {
+  text-align: left;
+}
+
+.user-name {
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 2px;
+}
+
+.user-email {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.logout-btn {
+  background: rgba(255,255,255,0.2);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.3);
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
+  background: rgba(255,255,255,0.3);
+  transform: translateY(-1px);
+}
+
+/* 模态框样式 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 15px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 25px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.modal-header h3 {
+  color: #2d3748;
+  margin: 0;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #718096;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-close:hover {
+  color: #2d3748;
+}
+
+.modal-body {
+  padding: 25px;
+}
+
+.virtue-description {
+  font-size: 1.1rem;
+  color: #4a5568;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.virtue-tips h4 {
+  color: #2d3748;
+  margin-bottom: 15px;
+  font-size: 1rem;
+}
+
+.virtue-tips ul {
+  list-style: none;
+  padding: 0;
+}
+
+.virtue-tips li {
+  padding: 8px 0;
+  color: #4a5568;
+  line-height: 1.5;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.virtue-tips li:before {
+  content: '💡 ';
+  margin-right: 8px;
+}
+
 @media (max-width: 768px) {
   .main-content {
     grid-template-columns: 1fr;
@@ -459,6 +844,40 @@ th {
   }
   
   .data-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .table-header,
+  .virtue-row {
+    grid-template-columns: 200px repeat(7, 1fr);
+  }
+  
+  .virtue-name-header {
+    padding: 0 10px;
+  }
+  
+  .virtue-info {
+    padding: 15px 10px;
+  }
+  
+  .virtue-name {
+    font-size: 0.9rem;
+  }
+  
+  .virtue-desc {
+    font-size: 0.8rem;
+  }
+  
+  .day-header {
+    padding: 0 5px;
+  }
+  
+  .virtue-cell {
+    padding: 15px 5px;
+  }
+  
+  .user-info {
     flex-direction: column;
     gap: 10px;
   }
