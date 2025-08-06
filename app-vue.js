@@ -246,6 +246,16 @@ createApp({
       return notes.value.slice(0, 5);
     });
     
+    const weekStatusText = computed(() => {
+      if (displayWeek.value < currentWeek.value) {
+        return "(历史周)";
+      } else if (displayWeek.value === currentWeek.value) {
+        return "(本周)";
+      } else {
+        return "(未来周)";
+      }
+    });
+    
     // 方法
     const isChecked = (rowIndex, day) => {
       const data = loadFromStorage('virtueData', {});
@@ -335,7 +345,12 @@ createApp({
     };
     
     const nextWeek = () => {
-      displayWeek.value++;
+      // 不允许进入未来的周数
+      if (displayWeek.value < currentWeek.value) {
+        displayWeek.value++;
+      } else {
+        alert("不能进入未来的周数！");
+      }
     };
     
     const goToCurrentWeek = () => {
@@ -393,6 +408,7 @@ createApp({
       focusCheckedDays,
       focusProgressPercent,
       recentNotes,
+      weekStatusText,
       
       // 方法
       isChecked,

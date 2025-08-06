@@ -254,6 +254,15 @@
       background: #cbd5e0;
     }
     
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .btn:disabled:hover {
+      background: inherit;
+    }
+    
     .notes-section {
       margin-top: 20px;
     }
@@ -434,8 +443,11 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
               <div class="week-navigation">
                 <button class="btn btn-secondary" @click="previousWeek">◀ 上一周</button>
-                <span style="margin: 0 15px; font-weight: bold;">第 {{ displayWeek }} 周</span>
-                <button class="btn btn-secondary" @click="nextWeek">下一周 ▶</button>
+                <span style="margin: 0 15px; font-weight: bold;">
+                  第 {{ displayWeek }} 周
+                  <span style="font-size: 0.8rem; color: #718096;">{{ weekStatusText }}</span>
+                </span>
+                <button class="btn btn-secondary" @click="nextWeek" :disabled="displayWeek >= currentWeek">下一周 ▶</button>
               </div>
               <button class="btn btn-primary" @click="goToCurrentWeek">回到本周</button>
             </div>
@@ -443,14 +455,14 @@
               <table>
                 <thead>
                   <tr>
-                    <th>美德 / 星期</th>
-                    <th class="week-label">周一</th>
-                    <th class="week-label">周二</th>
-                    <th class="week-label">周三</th>
-                    <th class="week-label">周四</th>
-                    <th class="week-label">周五</th>
-                    <th class="week-label">周六</th>
-                    <th class="week-label">周日</th>
+                    <th>美德 / 星期几</th>
+                    <th class="week-label">星期1</th>
+                    <th class="week-label">星期2</th>
+                    <th class="week-label">星期3</th>
+                    <th class="week-label">星期4</th>
+                    <th class="week-label">星期5</th>
+                    <th class="week-label">星期6</th>
+                    <th class="week-label">星期7</th>
                   </tr>
                 </thead>
                 <tbody>
