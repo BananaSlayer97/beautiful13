@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>富兰克林13美德养成系统</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #333;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .header {
+      text-align: center;
+      color: white;
+      margin-bottom: 30px;
+    }
+    
+    .header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+    
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr 350px;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    
+    .card h2 {
+      color: #4a5568;
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 10px;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .stat-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+    }
+    
+    .stat-number {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    
+    .stat-label {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+    
+    .table-container {
+      overflow-x: auto;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+    
+    th, td {
+      border: 1px solid #e2e8f0;
+      padding: 12px 8px;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+    
+    th {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    
+    .virtue-name {
+      text-align: left;
+      font-weight: bold;
+      background: #f7fafc;
+      min-width: 150px;
+      position: sticky;
+      left: 0;
+      z-index: 5;
+    }
+    
+    .checked {
+      background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+      color: white;
+      font-weight: bold;
+      transform: scale(1.05);
+      transition: all 0.2s ease;
+    }
+    
+    .week-label {
+      background: rgba(255,255,255,0.1);
+      font-weight: 600;
+    }
+    
+    .clickable {
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .clickable:hover {
+      background: #f0f0f0;
+      transform: scale(1.02);
+    }
+    
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .current-focus {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+    }
+    
+    .focus-virtue {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    
+    .focus-desc {
+      font-size: 0.9rem;
+      opacity: 0.9;
+      margin-bottom: 15px;
+    }
+    
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: rgba(255,255,255,0.3);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: white;
+      transition: width 0.3s ease;
+    }
+    
+    .controls {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+    
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+    }
+    
+    .btn-primary {
+      background: #4299e1;
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: #3182ce;
+    }
+    
+    .btn-secondary {
+      background: #e2e8f0;
+      color: #4a5568;
+    }
+    
+    .btn-secondary:hover {
+      background: #cbd5e0;
+    }
+    
+    .notes-section {
+      margin-top: 20px;
+    }
+    
+    .note-item {
+      background: #f7fafc;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      border-left: 4px solid #4299e1;
+    }
+    
+    .note-date {
+      font-size: 0.8rem;
+      color: #718096;
+      margin-bottom: 5px;
+    }
+    
+    .note-content {
+      font-size: 0.9rem;
+    }
+    
+    .note-input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #e2e8f0;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      resize: vertical;
+      min-height: 60px;
+    }
+    
+    .streak-info {
+      background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+      color: #744210;
+      padding: 15px;
+      border-radius: 10px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .streak-number {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+    }
+    
+    .modal-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    
+    .close {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #718096;
+    }
+    
+    .close:hover {
+      color: #4a5568;
+    }
+    
+    .virtue-detail {
+      margin-bottom: 20px;
+    }
+    
+    .virtue-detail h3 {
+      color: #4a5568;
+      margin-bottom: 10px;
+    }
+    
+    .virtue-detail p {
+      color: #718096;
+      line-height: 1.6;
+    }
+    
+    .tips-list {
+      list-style: none;
+      padding: 0;
+    }
+    
+    .tips-list li {
+      padding: 8px 0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .tips-list li:before {
+      content: "💡 ";
+      margin-right: 8px;
+    }
+    
+    @media (max-width: 768px) {
+      .main-content {
+        grid-template-columns: 1fr;
+      }
+      
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .header h1 {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🌟 富兰克林13美德养成系统</h1>
+      <p>培养品德，成就更好的自己</p>
+    </div>
+    
+    <div class="main-content">
+      <div class="main-panel">
+        <div class="card">
+          <h2>📊 本周统计</h2>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-number" id="totalChecked">0</div>
+              <div class="stat-label">本周完成</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="completionRate">0%</div>
+              <div class="stat-label">完成率</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="currentStreak">0</div>
+              <div class="stat-label">连续天数</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="bestStreak">0</div>
+              <div class="stat-label">最佳记录</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <h2>📅 美德打卡表</h2>
+          <div class="table-container">
+            <table id="virtueTable">
+              <thead>
+                <tr>
+                  <th>美德 / 星期</th>
+                  <th class="week-label">周一</th>
+                  <th class="week-label">周二</th>
+                  <th class="week-label">周三</th>
+                  <th class="week-label">周四</th>
+                  <th class="week-label">周五</th>
+                  <th class="week-label">周六</th>
+                  <th class="week-label">周日</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- 动态生成13行（每个美德一行） -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      
+      <div class="sidebar">
+        <div class="card">
+          <h2>🎯 本周专注</h2>
+          <div class="current-focus">
+            <div class="focus-virtue" id="focusVirtue">选择美德</div>
+            <div class="focus-desc" id="focusDesc">点击美德名称选择本周专注的美德</div>
+            <div class="progress-bar">
+              <div class="progress-fill" id="focusProgress" style="width: 0%"></div>
+            </div>
+            <div style="margin-bottom: 15px;">进度: <span id="focusProgressText">0/7</span></div>
+            <div class="controls">
+              <button class="btn btn-primary" onclick="changeFocus()">更换专注</button>
+              <button class="btn btn-secondary" onclick="resetWeek()">重置本周</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <h2>🔥 连续打卡</h2>
+          <div class="streak-info">
+            <div class="streak-number" id="currentStreakDisplay">0</div>
+            <div>连续打卡天数</div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <h2>📝 今日笔记</h2>
+          <div class="notes-section">
+            <textarea class="note-input" id="noteInput" placeholder="记录今天的感悟和进步..."></textarea>
+            <button class="btn btn-primary" onclick="saveNote()">保存笔记</button>
+            <div id="notesList">
+              <!-- 笔记列表 -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 美德详情模态框 -->
+  <div id="virtueModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <div id="modalContent">
+        <!-- 动态内容 -->
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
