@@ -186,6 +186,20 @@ th {
   font-weight: 600;
 }
 
+.date-label {
+  font-size: 0.8rem;
+  margin-top: 5px;
+  opacity: 0.9;
+  font-weight: normal;
+}
+
+.day-number {
+  font-size: 0.8rem;
+  margin-bottom: 5px;
+  color: #666;
+  font-weight: bold;
+}
+
 .clickable {
   cursor: pointer;
   transition: all 0.2s ease;

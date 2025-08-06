@@ -223,6 +223,37 @@ createApp({
       return `${formatDate(range.monday)} - ${formatDate(range.sunday)}`;
     });
     
+    // 计算当前显示周的每一天日期
+    const weekDays = computed(() => {
+      // 获取当前周的周一日期
+      const now = new Date();
+      const currentDay = now.getDay();
+      const mondayOffset = currentDay === 0 ? 6 : currentDay - 1;
+      
+      const monday = new Date(now);
+      monday.setDate(now.getDate() - mondayOffset);
+      
+      // 计算显示周与当前周的差值
+      const weekDiff = displayWeek.value - currentWeek.value;
+      
+      // 调整到显示周的周一
+      const displayMonday = new Date(monday);
+      displayMonday.setDate(monday.getDate() + (weekDiff * 7));
+      
+      // 生成一周的日期
+      const days = [];
+      for (let i = 0; i < 7; i++) {
+        const day = new Date(displayMonday);
+        day.setDate(displayMonday.getDate() + i);
+        days.push({
+          dayOfWeek: `星期${i + 1}`,
+          date: `${day.getMonth() + 1}/${day.getDate()}`
+        });
+      }
+      
+      return days;
+    });
+    
     const totalChecked = computed(() => {
       let count = 0;
       
@@ -521,6 +552,7 @@ createApp({
       
       // 计算属性
       weekDateRange,
+      weekDays,
       totalChecked,
       completionRate,
       focusCheckedDays,

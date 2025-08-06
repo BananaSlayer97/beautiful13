@@ -61,13 +61,10 @@
                 <thead>
                   <tr>
                     <th>美德 / 星期几</th>
-                    <th class="week-label">星期1</th>
-                    <th class="week-label">星期2</th>
-                    <th class="week-label">星期3</th>
-                    <th class="week-label">星期4</th>
-                    <th class="week-label">星期5</th>
-                    <th class="week-label">星期6</th>
-                    <th class="week-label">星期7</th>
+                    <th v-for="(day, index) in weekDays" :key="index" class="week-label">
+                      <div>{{ day.dayOfWeek }}</div>
+                      <div class="date-label">{{ day.date }}</div>
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -79,7 +76,8 @@
                         class="clickable" 
                         :class="{ checked: isChecked(rowIndex, day-1) }"
                         @click="toggleCheck(rowIndex, day-1)">
-                      {{ isChecked(rowIndex, day-1) ? '✓' : '○' }}
+                      <div class="day-number">{{ day }}</div>
+                      <div>{{ isChecked(rowIndex, day-1) ? '✓' : '○' }}</div>
                     </td>
                   </tr>
                 </tbody>
