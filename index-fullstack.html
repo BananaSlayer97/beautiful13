@@ -300,34 +300,36 @@
               </div>
             </div>
             
-            <div class="virtue-table">
-              <div class="table-header">
-                <div class="virtue-name-header">美德</div>
-                <div v-for="day in weekDays" :key="day.date" class="day-header">
-                  <div class="day-name">{{ day.dayOfWeek }}</div>
-                  <div class="day-date">{{ day.date }}</div>
-                </div>
-              </div>
-              
-              <div v-for="(virtue, index) in virtues" :key="index" class="virtue-row" :class="{ 'focus-virtue': index === currentFocus }">
-                <div class="virtue-info" @click="openVirtueModal(virtue, index)">
-                  <div class="virtue-name">{{ virtue.name }}</div>
-                  <div class="virtue-desc">{{ virtue.desc }}</div>
-                </div>
-                
-                <div v-for="day in weekDays" :key="`${index}-${day.date}`" class="virtue-cell">
-                  <div class="checkbox-container">
-                    <input 
-                      type="checkbox" 
-                      :id="`virtue-${index}-${day.date}`"
-                      v-model="getVirtueStatus(index, day.dayIndex)"
-                      @change="updateVirtueStatus(index, day.dayIndex, $event.target.checked)"
-                      class="virtue-checkbox"
-                    >
-                    <label :for="`virtue-${index}-${day.date}`" class="checkbox-label"></label>
-                  </div>
-                </div>
-              </div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>美德 / 星期几</th>
+                    <th v-for="(day, index) in weekDays" :key="index" class="week-label">
+                      <div>{{ day.dayOfWeek }}</div>
+                      <div class="date-label">{{ day.date }}</div>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(virtue, rowIndex) in virtues" :key="rowIndex">
+                    <td class="virtue-name clickable" @click="openVirtueModal(virtue, rowIndex)" :title="'点击查看详情'">
+                      {{ virtue.name }}
+                    </td>
+                    <td v-for="day in 7" :key="day" 
+                        :class="{ 
+                          checked: getVirtueStatus(rowIndex, day-1),
+                          clickable: canClickDate(day-1),
+                          disabled: !canClickDate(day-1)
+                        }"
+                        @click="canClickDate(day-1) ? updateVirtueStatus(rowIndex, day-1, !getVirtueStatus(rowIndex, day-1)) : null"
+                        :title="canClickDate(day-1) ? '点击打卡' : '只能修改今天的记录'">
+                      <div class="day-number">{{ day }}</div>
+                      <div>{{ getVirtueStatus(rowIndex, day-1) ? '✓' : '○' }}</div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>

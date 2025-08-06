@@ -103,7 +103,7 @@ virtueRecordSchema.statics.getWeekRecords = function(userId, year, week) {
 // 静态方法：获取用户的统计数据
 virtueRecordSchema.statics.getUserStats = async function(userId) {
   const pipeline = [
-    { $match: { userId: mongoose.Types.ObjectId(userId) } },
+    { $match: { userId: new mongoose.Types.ObjectId(userId) } },
     {
       $group: {
         _id: null,

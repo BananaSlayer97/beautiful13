@@ -447,9 +447,25 @@ createApp({
       return virtue?.completed || false;
     };
 
+    // 检查是否是今天
+    const isToday = (date) => {
+      const today = new Date();
+      const checkDate = new Date(date);
+      return today.getFullYear() === checkDate.getFullYear() &&
+             today.getMonth() === checkDate.getMonth() &&
+             today.getDate() === checkDate.getDate();
+    };
+
     const updateVirtueStatus = async (virtueIndex, dayIndex, completed) => {
       try {
         const day = weekDays.value[dayIndex];
+        
+        // 只允许点击今天的日期
+        if (!isToday(day.fullDate)) {
+          alert('只能修改今天的打卡记录！');
+          return;
+        }
+        
         const date = formatDateForAPI(day.fullDate);
         
         await api.virtues.updateVirtue(date, {
@@ -467,6 +483,12 @@ createApp({
         // 回滚状态
         await loadWeekRecords();
       }
+    };
+
+    // 检查某个日期是否可以点击（只有今天可以点击）
+    const canClickDate = (dayIndex) => {
+      const day = weekDays.value[dayIndex];
+      return isToday(day.fullDate);
     };
 
     const updateFocus = async () => {
@@ -563,6 +585,7 @@ createApp({
       selectedVirtueIndex,
       todayNote,
       streakData,
+      weekRecords,
       
       // 计算属性
       weekDateRange,
@@ -579,7 +602,9 @@ createApp({
       nextWeek,
       openVirtueModal,
       closeModal,
-      getStreakMotivation
+      getStreakMotivation,
+      canClickDate,
+      isToday
     };
   }
 }).mount('#app');

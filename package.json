@@ -8,8 +8,6 @@
     "dev": "nodemon server/app.js",
     "client": "live-server --port=3000 --host=localhost",
     "server": "nodemon server/app.js",
-    "server-memory": "nodemon server/app-memory.js",
-    "dev-memory": "nodemon server/app-memory.js",
     "build": "echo 'Build completed'"
   },
   "keywords": [

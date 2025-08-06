@@ -42,7 +42,7 @@ app.get('/api/health', (req, res) => {
 
 // 服务前端文件
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../index-vue.html'));
+  res.sendFile(path.join(__dirname, '../index-fullstack.html'));
 });
 
 // 错误处理中间件
