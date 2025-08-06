@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>富兰克林13美德养成系统 - 全栈版</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* 认证相关样式 */
+    .auth-container {
+      max-width: 400px;
+      margin: 50px auto;
+      padding: 30px;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .auth-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .auth-header h2 {
+      color: #667eea;
+      margin-bottom: 10px;
+    }
+    
+    .auth-form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    
+    .form-group label {
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .form-group input {
+      padding: 12px;
+      border: 2px solid #e1e5e9;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+    
+    .form-group input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    
+    .auth-button {
+      padding: 12px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    
+    .auth-button:hover {
+      transform: translateY(-2px);
+    }
+    
+    .auth-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .auth-switch {
+      text-align: center;
+      margin-top: 20px;
+    }
+    
+    .auth-switch a {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    
+    .auth-switch a:hover {
+      text-decoration: underline;
+    }
+    
+    .error-message {
+      background: #fee;
+      color: #c33;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 15px;
+      border-left: 4px solid #c33;
+    }
+    
+    .success-message {
+      background: #efe;
+      color: #363;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 15px;
+      border-left: 4px solid #363;
+    }
+    
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      background: rgba(255,255,255,0.2);
+      padding: 10px 15px;
+      border-radius: 10px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+    
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: #667eea;
+    }
+    
+    .user-details {
+      flex: 1;
+    }
+    
+    .user-name {
+      font-weight: bold;
+      margin-bottom: 2px;
+    }
+    
+    .user-email {
+      font-size: 0.9em;
+      opacity: 0.8;
+    }
+    
+    .logout-btn {
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.9em;
+    }
+    
+    .logout-btn:hover {
+      background: rgba(255,255,255,0.3);
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 50px;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- 加载状态 -->
+    <div v-if="loading" class="loading">
+      <h2>🔄 加载中...</h2>
+    </div>
+    
+    <!-- 未登录状态 - 显示认证表单 -->
+    <div v-else-if="!user" class="auth-container">
+      <div class="auth-header">
+        <h2>{{ isLogin ? '登录' : '注册' }}</h2>
+        <p>{{ isLogin ? '欢迎回来！' : '加入富兰克林美德养成计划' }}</p>
+      </div>
+      
+      <div v-if="authError" class="error-message">
+        {{ authError }}
+      </div>
+      
+      <div v-if="authSuccess" class="success-message">
+        {{ authSuccess }}
+      </div>
+      
+      <form @submit.prevent="handleAuth" class="auth-form">
+        <div v-if="!isLogin" class="form-group">
+          <label for="username">用户名</label>
+          <input 
+            type="text" 
+            id="username" 
+            v-model="authForm.username" 
+            required
+            :disabled="authLoading"
+            placeholder="请输入用户名"
+          >
+        </div>
+        
+        <div class="form-group">
+          <label for="email">邮箱</label>
+          <input 
+            type="email" 
+            id="email" 
+            v-model="authForm.email" 
+            required
+            :disabled="authLoading"
+            placeholder="请输入邮箱地址"
+          >
+        </div>
+        
+        <div class="form-group">
+          <label for="password">密码</label>
+          <input 
+            type="password" 
+            id="password" 
+            v-model="authForm.password" 
+            required
+            :disabled="authLoading"
+            :placeholder="isLogin ? '请输入密码' : '密码至少6位，包含字母和数字'"
+          >
+        </div>
+        
+        <button type="submit" class="auth-button" :disabled="authLoading">
+          {{ authLoading ? '处理中...' : (isLogin ? '登录' : '注册') }}
+        </button>
+      </form>
+      
+      <div class="auth-switch">
+        <span>{{ isLogin ? '还没有账户？' : '已有账户？' }}</span>
+        <a href="#" @click.prevent="toggleAuthMode">
+          {{ isLogin ? '立即注册' : '立即登录' }}
+        </a>
+      </div>
+    </div>
+    
+    <!-- 已登录状态 - 显示主应用 -->
+    <div v-else class="container">
+      <div class="header">
+        <h1>🌟 富兰克林13美德养成系统 - 全栈版</h1>
+        <p>培养品德，成就更好的自己</p>
+        
+        <!-- 用户信息 -->
+        <div class="user-info">
+          <div class="user-avatar">
+            {{ user.username.charAt(0).toUpperCase() }}
+          </div>
+          <div class="user-details">
+            <div class="user-name">{{ user.profile?.displayName || user.username }}</div>
+            <div class="user-email">{{ user.email }}</div>
+          </div>
+          <button @click="logout" class="logout-btn">退出登录</button>
+        </div>
+        
+        <div class="week-info">
+          <span class="week-badge">第 {{ currentWeek }} 周</span>
+          <span class="date-info">{{ weekDateRange }}</span>
+        </div>
+      </div>
+      
+      <div class="main-content">
+        <div class="main-panel">
+          <div class="card">
+            <h2>📊 本周统计</h2>
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-number">{{ totalChecked }}</div>
+                <div class="stat-label">本周完成</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number">{{ completionRate }}%</div>
+                <div class="stat-label">完成率</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number">{{ streakData.current }}</div>
+                <div class="stat-label">连续天数</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number">{{ streakData.best }}</div>
+                <div class="stat-label">最佳记录</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card">
+            <h2>📅 美德打卡表</h2>
+            <div class="week-navigation-container">
+              <div class="week-navigation">
+                <button class="btn btn-secondary" @click="previousWeek" :disabled="displayWeek <= 1">◀ 上一周</button>
+                <span class="week-display">第 {{ displayWeek }} 周</span>
+                <button class="btn btn-secondary" @click="nextWeek" :disabled="displayWeek >= currentWeek">下一周 ▶</button>
+              </div>
+            </div>
+            
+            <div class="virtue-table">
+              <div class="table-header">
+                <div class="virtue-name-header">美德</div>
+                <div v-for="day in weekDays" :key="day.date" class="day-header">
+                  <div class="day-name">{{ day.dayOfWeek }}</div>
+                  <div class="day-date">{{ day.date }}</div>
+                </div>
+              </div>
+              
+              <div v-for="(virtue, index) in virtues" :key="index" class="virtue-row" :class="{ 'focus-virtue': index === currentFocus }">
+                <div class="virtue-info" @click="openVirtueModal(virtue, index)">
+                  <div class="virtue-name">{{ virtue.name }}</div>
+                  <div class="virtue-desc">{{ virtue.desc }}</div>
+                </div>
+                
+                <div v-for="day in weekDays" :key="`${index}-${day.date}`" class="virtue-cell">
+                  <div class="checkbox-container">
+                    <input 
+                      type="checkbox" 
+                      :id="`virtue-${index}-${day.date}`"
+                      v-model="getVirtueStatus(index, day.dayIndex)"
+                      @change="updateVirtueStatus(index, day.dayIndex, $event.target.checked)"
+                      class="virtue-checkbox"
+                    >
+                    <label :for="`virtue-${index}-${day.date}`" class="checkbox-label"></label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="side-panel">
+          <div class="card">
+            <h3>🎯 本周专注</h3>
+            <div class="focus-virtue">
+              <select v-model="currentFocus" @change="updateFocus" class="focus-select">
+                <option v-for="(virtue, index) in virtues" :key="index" :value="index">
+                  {{ virtue.name }}
+                </option>
+              </select>
+              <div class="focus-description">
+                {{ virtues[currentFocus]?.desc }}
+              </div>
+            </div>
+          </div>
+          
+          <div class="card">
+            <h3>📝 今日笔记</h3>
+            <div class="notes-section">
+              <textarea 
+                v-model="todayNote" 
+                @blur="saveTodayNote"
+                placeholder="记录今天的感悟和进步..."
+                class="note-textarea"
+              ></textarea>
+              <div class="note-count">{{ todayNote.length }}/500</div>
+            </div>
+          </div>
+          
+          <div class="card">
+            <h3>🔥 连续打卡</h3>
+            <div class="streak-info">
+              <div class="streak-current">
+                <span class="streak-number">{{ streakData.current }}</span>
+                <span class="streak-label">天</span>
+              </div>
+              <div class="streak-best">最佳记录：{{ streakData.best }}天</div>
+              <div class="streak-motivation">
+                {{ getStreakMotivation() }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 美德详情模态框 -->
+    <div v-if="showModal" class="modal-overlay" @click="closeModal">
+      <div class="modal-content" @click.stop>
+        <div class="modal-header">
+          <h3>{{ selectedVirtue?.name }}</h3>
+          <button @click="closeModal" class="modal-close">×</button>
+        </div>
+        <div class="modal-body">
+          <p class="virtue-description">{{ selectedVirtue?.desc }}</p>
+          <div class="virtue-tips">
+            <h4>💡 实践建议：</h4>
+            <ul>
+              <li v-for="tip in selectedVirtue?.tips" :key="tip">{{ tip }}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="app-fullstack.js"></script>
+</body>
+</html>
