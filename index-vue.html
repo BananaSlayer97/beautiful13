@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>富兰克林13美德养成系统</title>
+  <title>富兰克林13美德养成系统 - Vue版</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
-    body {  
+    body { 
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       min-height: 100vh;
@@ -149,6 +150,11 @@
       position: sticky;
       left: 0;
       z-index: 5;
+      cursor: pointer;
+    }
+    
+    .virtue-name:hover {
+      background: #e2e8f0;
     }
     
     .checked {
@@ -306,6 +312,10 @@
       z-index: 1000;
     }
     
+    .modal.show {
+      display: block;
+    }
+    
     .modal-content {
       position: absolute;
       top: 50%;
@@ -362,6 +372,12 @@
       margin-right: 8px;
     }
     
+    .week-navigation {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
     @media (max-width: 768px) {
       .main-content {
         grid-template-columns: 1fr;
@@ -378,121 +394,149 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>🌟 富兰克林13美德养成系统</h1>
-      <p>培养品德，成就更好的自己</p>
-      <div class="week-info">
-        <span class="week-badge">第 <span id="currentWeekDisplay">0</span> 周</span>
-        <span class="date-info" id="dateRangeDisplay">2024年1月1日 - 1月7日</span>
+  <div id="app">
+    <div class="container">
+      <div class="header">
+        <h1>🌟 富兰克林13美德养成系统 - Vue版</h1>
+        <p>培养品德，成就更好的自己</p>
+        <div class="week-info">
+          <span class="week-badge">第 {{ currentWeek }} 周</span>
+          <span class="date-info">{{ weekDateRange }}</span>
+        </div>
+      </div>
+      
+      <div class="main-content">
+        <div class="main-panel">
+          <div class="card">
+            <h2>📊 本周统计</h2>
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-number">{{ totalChecked }}</div>
+                <div class="stat-label">本周完成</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number">{{ completionRate }}%</div>
+                <div class="stat-label">完成率</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number">{{ streakData.current }}</div>
+                <div class="stat-label">连续天数</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number">{{ streakData.best }}</div>
+                <div class="stat-label">最佳记录</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card">
+            <h2>📅 美德打卡表</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+              <div class="week-navigation">
+                <button class="btn btn-secondary" @click="previousWeek">◀ 上一周</button>
+                <span style="margin: 0 15px; font-weight: bold;">第 {{ displayWeek }} 周</span>
+                <button class="btn btn-secondary" @click="nextWeek">下一周 ▶</button>
+              </div>
+              <button class="btn btn-primary" @click="goToCurrentWeek">回到本周</button>
+            </div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>美德 / 星期</th>
+                    <th class="week-label">周一</th>
+                    <th class="week-label">周二</th>
+                    <th class="week-label">周三</th>
+                    <th class="week-label">周四</th>
+                    <th class="week-label">周五</th>
+                    <th class="week-label">周六</th>
+                    <th class="week-label">周日</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(virtue, rowIndex) in virtues" :key="rowIndex">
+                    <td class="virtue-name clickable" @click="showVirtueDetail(rowIndex)" :title="'点击查看详情'">
+                      {{ virtue.name }}
+                    </td>
+                    <td v-for="day in 7" :key="day" 
+                        class="clickable" 
+                        :class="{ checked: isChecked(rowIndex, day-1) }"
+                        @click="toggleCheck(rowIndex, day-1)">
+                      {{ isChecked(rowIndex, day-1) ? '✓' : '○' }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        
+        <div class="sidebar">
+          <div class="card">
+            <h2>🎯 本周专注</h2>
+            <div class="current-focus">
+              <div class="focus-virtue">{{ virtues[currentFocus].name }}</div>
+              <div class="focus-desc">{{ virtues[currentFocus].desc }}</div>
+              <div class="progress-bar">
+                <div class="progress-fill" :style="{ width: focusProgressPercent + '%' }"></div>
+              </div>
+              <div style="margin-bottom: 15px;">进度: {{ focusCheckedDays }}/7</div>
+              <div class="controls">
+                <button class="btn btn-primary" @click="changeFocus">更换专注</button>
+                <button class="btn btn-secondary" @click="resetWeek">重置本周</button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card">
+            <h2>🔥 连续打卡</h2>
+            <div class="streak-info">
+              <div class="streak-number">{{ streakData.current }}</div>
+              <div>连续打卡天数</div>
+            </div>
+          </div>
+          
+          <div class="card">
+            <h2>📝 今日笔记</h2>
+            <div class="notes-section">
+              <textarea class="note-input" v-model="newNote" placeholder="记录今天的感悟和进步..."></textarea>
+              <button class="btn btn-primary" @click="saveNote">保存笔记</button>
+              <div>
+                <div v-for="note in recentNotes" :key="note.id" class="note-item">
+                  <div class="note-date">{{ note.date }}</div>
+                  <div class="note-content">{{ note.content }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     
-    <div class="main-content">
-      <div class="main-panel">
-        <div class="card">
-          <h2>📊 本周统计</h2>
-          <div class="stats-grid">
-            <div class="stat-card">
-              <div class="stat-number" id="totalChecked">0</div>
-              <div class="stat-label">本周完成</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-number" id="completionRate">0%</div>
-              <div class="stat-label">完成率</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-number" id="currentStreak">0</div>
-              <div class="stat-label">连续天数</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-number" id="bestStreak">0</div>
-              <div class="stat-label">最佳记录</div>
-            </div>
+    <!-- 美德详情模态框 -->
+    <div class="modal" :class="{ show: showModal }" @click="closeModal">
+      <div class="modal-content" @click.stop>
+        <span class="close" @click="closeModal">&times;</span>
+        <div v-if="selectedVirtue">
+          <h2>{{ selectedVirtue.name }}</h2>
+          <div class="virtue-detail">
+            <h3>📖 美德描述</h3>
+            <p>{{ selectedVirtue.desc }}</p>
+          </div>
+          <div class="virtue-detail">
+            <h3>💡 实践建议</h3>
+            <ul class="tips-list">
+              <li v-for="tip in selectedVirtue.tips" :key="tip">{{ tip }}</li>
+            </ul>
+          </div>
+          <div style="margin-top: 20px;">
+            <button class="btn btn-primary" @click="selectFocus(selectedVirtueIndex)">设为本周专注</button>
           </div>
         </div>
-        
-              <div class="card">
-        <h2>📅 美德打卡表</h2>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-          <div class="week-navigation">
-            <button class="btn btn-secondary" onclick="previousWeek()">◀ 上一周</button>
-            <span style="margin: 0 15px; font-weight: bold;">第 <span id="tableWeekDisplay">0</span> 周</span>
-            <button class="btn btn-secondary" onclick="nextWeek()">下一周 ▶</button>
-          </div>
-          <button class="btn btn-primary" onclick="goToCurrentWeek()">回到本周</button>
-        </div>
-        <div class="table-container">
-          <table id="virtueTable">
-            <thead>
-              <tr>
-                <th>美德 / 星期</th>
-                <th class="week-label">周一</th>
-                <th class="week-label">周二</th>
-                <th class="week-label">周三</th>
-                <th class="week-label">周四</th>
-                <th class="week-label">周五</th>
-                <th class="week-label">周六</th>
-                <th class="week-label">周日</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- 动态生成13行（每个美德一行） -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-      </div>
-      
-      <div class="sidebar">
-        <div class="card">
-          <h2>🎯 本周专注</h2>
-          <div class="current-focus">
-            <div class="focus-virtue" id="focusVirtue">选择美德</div>
-            <div class="focus-desc" id="focusDesc">点击美德名称选择本周专注的美德</div>
-            <div class="progress-bar">
-              <div class="progress-fill" id="focusProgress" style="width: 0%"></div>
-            </div>
-            <div style="margin-bottom: 15px;">进度: <span id="focusProgressText">0/7</span></div>
-            <div class="controls">
-              <button class="btn btn-primary" onclick="changeFocus()">更换专注</button>
-              <button class="btn btn-secondary" onclick="resetWeek()">重置本周</button>
-            </div>
-          </div>
-        </div>
-        
-        <div class="card">
-          <h2>🔥 连续打卡</h2>
-          <div class="streak-info">
-            <div class="streak-number" id="currentStreakDisplay">0</div>
-            <div>连续打卡天数</div>
-          </div>
-        </div>
-        
-        <div class="card">
-          <h2>📝 今日笔记</h2>
-          <div class="notes-section">
-            <textarea class="note-input" id="noteInput" placeholder="记录今天的感悟和进步..."></textarea>
-            <button class="btn btn-primary" onclick="saveNote()">保存笔记</button>
-            <div id="notesList">
-              <!-- 笔记列表 -->
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <!-- 美德详情模态框 -->
-  <div id="virtueModal" class="modal">
-    <div class="modal-content">
-      <span class="close" onclick="closeModal()">&times;</span>
-      <div id="modalContent">
-        <!-- 动态内容 -->
       </div>
     </div>
   </div>
 
-  <script src="app.js"></script>
+  <script src="app-vue.js"></script>
 </body>
-</html>
+</html> 
