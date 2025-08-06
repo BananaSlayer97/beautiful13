@@ -135,6 +135,7 @@ const virtues = [
 // 全局变量
 let currentFocus = 0; // 当前专注的美德索引
 let currentWeek = getCurrentWeek();
+let displayWeek = currentWeek; // 当前显示的周数
 let streakData = { current: 0, best: 0, lastDate: null };
 
 // 获取当前周数
@@ -143,6 +144,37 @@ function getCurrentWeek() {
   const start = new Date(now.getFullYear(), 0, 1);
   const days = Math.floor((now - start) / (24 * 60 * 60 * 1000));
   return Math.ceil((days + start.getDay() + 1) / 7);
+}
+
+// 获取本周的日期范围
+function getWeekDateRange() {
+  const now = new Date();
+  const currentDay = now.getDay(); // 0是周日，1是周一
+  const mondayOffset = currentDay === 0 ? 6 : currentDay - 1; // 调整为周一开始
+  
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - mondayOffset);
+  
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  
+  return {
+    monday: monday,
+    sunday: sunday
+  };
+}
+
+// 格式化日期
+function formatDate(date) {
+  return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
+}
+
+// 更新周数显示
+function updateWeekDisplay() {
+  const weekRange = getWeekDateRange();
+  document.getElementById("currentWeekDisplay").textContent = currentWeek;
+  document.getElementById("dateRangeDisplay").textContent = 
+    `${formatDate(weekRange.monday)} - ${formatDate(weekRange.sunday)}`;
 }
 
 // 获取当前是周几（0-6，0是周日）
@@ -187,7 +219,7 @@ function toggleCheck(cell, rowIndex, day) {
 
   // 存储数据
   const data = JSON.parse(localStorage.getItem("virtueData") || "{}");
-  const key = `${currentWeek}-${rowIndex}-${day}`;
+  const key = `${displayWeek}-${rowIndex}-${day}`;
   data[key] = !isChecked;
   localStorage.setItem("virtueData", JSON.stringify(data));
 
@@ -203,10 +235,10 @@ function updateStats() {
   let totalChecked = 0;
   let totalPossible = 0;
 
-  // 计算本周数据
+  // 计算当前显示周的数据
   virtues.forEach((virtue, rowIndex) => {
     for (let day = 0; day < 7; day++) {
-      const key = `${currentWeek}-${rowIndex}-${day}`;
+      const key = `${displayWeek}-${rowIndex}-${day}`;
       if (data[key]) {
         totalChecked++;
       }
@@ -230,7 +262,7 @@ function updateFocusProgress() {
     let checkedDays = 0;
 
     for (let day = 0; day < 7; day++) {
-      const key = `${currentWeek}-${currentFocus}-${day}`;
+      const key = `${displayWeek}-${currentFocus}-${day}`;
       if (data[key]) {
         checkedDays++;
       }
@@ -319,7 +351,7 @@ function resetWeek() {
     
     // 删除本周数据
     Object.keys(data).forEach(key => {
-      if (key.startsWith(currentWeek + "-")) {
+      if (key.startsWith(displayWeek + "-")) {
         delete data[key];
       }
     });
@@ -331,6 +363,30 @@ function resetWeek() {
     updateStats();
     updateFocusProgress();
   }
+}
+
+// 上一周
+function previousWeek() {
+  displayWeek--;
+  loadData();
+  updateStats();
+  updateFocusProgress();
+}
+
+// 下一周
+function nextWeek() {
+  displayWeek++;
+  loadData();
+  updateStats();
+  updateFocusProgress();
+}
+
+// 回到本周
+function goToCurrentWeek() {
+  displayWeek = currentWeek;
+  loadData();
+  updateStats();
+  updateFocusProgress();
 }
 
 // 显示美德详情
@@ -418,13 +474,16 @@ function loadData() {
     if (cell.textContent === "○" && cell.cellIndex > 0) {
       const rowIndex = cell.parentNode.rowIndex;
       const day = cell.cellIndex - 1;
-      const key = `${currentWeek}-${rowIndex}-${day}`;
+      const key = `${displayWeek}-${rowIndex}-${day}`;
       if (data[key]) {
         cell.textContent = "✓";
         cell.classList.add("checked");
       }
     }
   });
+  
+  // 更新表格周数显示
+  document.getElementById("tableWeekDisplay").textContent = displayWeek;
 }
 
 // 加载设置
@@ -532,6 +591,7 @@ document.addEventListener('DOMContentLoaded', function() {
   loadData();
   updateStats();
   updateFocusProgress();
+  updateWeekDisplay();
   loadNotes();
   
   // 添加导出导入按钮到页面

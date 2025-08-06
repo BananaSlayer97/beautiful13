@@ -37,6 +37,34 @@
       opacity: 0.9;
     }
     
+    .week-info {
+      margin-top: 15px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    
+    .week-badge {
+      background: rgba(255,255,255,0.2);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 1.1rem;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+    
+    .date-info {
+      background: rgba(255,255,255,0.15);
+      padding: 6px 12px;
+      border-radius: 15px;
+      font-size: 0.9rem;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    
     .main-content {
       display: grid;
       grid-template-columns: 1fr 350px;
@@ -354,6 +382,10 @@
     <div class="header">
       <h1>🌟 富兰克林13美德养成系统</h1>
       <p>培养品德，成就更好的自己</p>
+      <div class="week-info">
+        <span class="week-badge">第 <span id="currentWeekDisplay">0</span> 周</span>
+        <span class="date-info" id="dateRangeDisplay">2024年1月1日 - 1月7日</span>
+      </div>
     </div>
     
     <div class="main-content">
@@ -380,28 +412,36 @@
           </div>
         </div>
         
-        <div class="card">
-          <h2>📅 美德打卡表</h2>
-          <div class="table-container">
-            <table id="virtueTable">
-              <thead>
-                <tr>
-                  <th>美德 / 星期</th>
-                  <th class="week-label">周一</th>
-                  <th class="week-label">周二</th>
-                  <th class="week-label">周三</th>
-                  <th class="week-label">周四</th>
-                  <th class="week-label">周五</th>
-                  <th class="week-label">周六</th>
-                  <th class="week-label">周日</th>
-                </tr>
-              </thead>
-              <tbody>
-                <!-- 动态生成13行（每个美德一行） -->
-              </tbody>
-            </table>
+              <div class="card">
+        <h2>📅 美德打卡表</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+          <div class="week-navigation">
+            <button class="btn btn-secondary" onclick="previousWeek()">◀ 上一周</button>
+            <span style="margin: 0 15px; font-weight: bold;">第 <span id="tableWeekDisplay">0</span> 周</span>
+            <button class="btn btn-secondary" onclick="nextWeek()">下一周 ▶</button>
           </div>
+          <button class="btn btn-primary" onclick="goToCurrentWeek()">回到本周</button>
         </div>
+        <div class="table-container">
+          <table id="virtueTable">
+            <thead>
+              <tr>
+                <th>美德 / 星期</th>
+                <th class="week-label">周一</th>
+                <th class="week-label">周二</th>
+                <th class="week-label">周三</th>
+                <th class="week-label">周四</th>
+                <th class="week-label">周五</th>
+                <th class="week-label">周六</th>
+                <th class="week-label">周日</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- 动态生成13行（每个美德一行） -->
+            </tbody>
+          </table>
+        </div>
+      </div>
       </div>
       
       <div class="sidebar">
