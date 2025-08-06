@@ -1,0 +1,37 @@
+{
+  "name": "franklin-virtues-fullstack",
+  "version": "1.0.0",
+  "description": "富兰克林13美德养成系统 - 全栈版本",
+  "main": "server/app.js",
+  "scripts": {
+    "start": "node server/app.js",
+    "dev": "nodemon server/app.js",
+    "client": "live-server --port=3000 --host=localhost",
+    "server": "nodemon server/app.js",
+    "server-memory": "nodemon server/app-memory.js",
+    "dev-memory": "nodemon server/app-memory.js",
+    "build": "echo 'Build completed'"
+  },
+  "keywords": [
+    "franklin",
+    "virtues",
+    "habit-tracker",
+    "vue",
+    "express",
+    "mongodb"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^7.5.0",
+    "cors": "^2.8.5",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "dotenv": "^16.3.1",
+    "express-validator": "^7.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
