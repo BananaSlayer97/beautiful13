@@ -341,7 +341,12 @@ createApp({
     };
     
     const previousWeek = () => {
-      displayWeek.value--;
+      // 不允许周数小于1
+      if (displayWeek.value > 1) {
+        displayWeek.value--;
+      } else {
+        alert("不能查看第0周或负数周！");
+      }
     };
     
     const nextWeek = () => {
