@@ -47,7 +47,7 @@
             <h2>📅 美德打卡表</h2>
             <div class="week-navigation-container">
               <div class="week-navigation">
-                <button class="btn btn-secondary" @click="previousWeek">◀ 上一周</button>
+                <button class="btn btn-secondary" @click="previousWeek" :disabled="displayWeek <= 1">◀ 上一周</button>
                 <span class="week-display">
                   第 {{ displayWeek }} 周
                   <span class="week-status">{{ weekStatusText }}</span>
@@ -110,6 +110,17 @@
             <div class="streak-info">
               <div class="streak-number">{{ streakData.current }}</div>
               <div>连续打卡天数</div>
+            </div>
+          </div>
+          
+          <div class="card">
+            <h2>💾 数据管理</h2>
+            <div class="data-management">
+              <p class="data-tip">备份或恢复您的所有数据</p>
+              <div class="data-buttons">
+                <button class="btn btn-primary" @click="exportData">导出数据</button>
+                <button class="btn btn-secondary" @click="createImportInput">导入数据</button>
+              </div>
             </div>
           </div>
           

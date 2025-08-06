@@ -409,6 +409,23 @@ th {
   margin-top: 20px;
 }
 
+.data-management {
+  text-align: center;
+  padding: 10px 0;
+}
+
+.data-tip {
+  color: #718096;
+  margin-bottom: 15px;
+  font-size: 0.9rem;
+}
+
+.data-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
 @media (max-width: 768px) {
   .main-content {
     grid-template-columns: 1fr;
@@ -423,6 +440,11 @@ th {
   }
   
   .week-navigation-container {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .data-buttons {
     flex-direction: column;
     gap: 10px;
   }

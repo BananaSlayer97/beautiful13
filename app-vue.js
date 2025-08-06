@@ -178,8 +178,12 @@ createApp({
     const loadFromStorage = (key, defaultValue) => {
       try {
         const stored = localStorage.getItem(key);
-        return stored ? JSON.parse(stored) : defaultValue;
-      } catch {
+        if (!stored) return defaultValue;
+        
+        const parsed = JSON.parse(stored);
+        return parsed !== null && parsed !== undefined ? parsed : defaultValue;
+      } catch (error) {
+        console.error(`加载数据 ${key} 失败:`, error);
         return defaultValue;
       }
     };
@@ -187,9 +191,21 @@ createApp({
     // 保存到localStorage
     const saveToStorage = (key, value) => {
       try {
-        localStorage.setItem(key, JSON.stringify(value));
+        if (value === undefined || value === null) {
+          console.warn(`尝试保存无效值到 ${key}`);
+          return false;
+        }
+        
+        const serialized = JSON.stringify(value);
+        localStorage.setItem(key, serialized);
+        return true;
       } catch (error) {
-        console.error('保存数据失败:', error);
+        console.error(`保存数据到 ${key} 失败:`, error);
+        // 如果是存储空间不足错误，提示用户
+        if (error.name === 'QuotaExceededError' || error.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+          alert('本地存储空间已满，请清理一些数据后再试');
+        }
+        return false;
       }
     };
     
@@ -209,12 +225,11 @@ createApp({
     
     const totalChecked = computed(() => {
       let count = 0;
-      const data = loadFromStorage('virtueData', {});
       
       virtues.value.forEach((virtue, rowIndex) => {
         for (let day = 0; day < 7; day++) {
           const key = `${displayWeek.value}-${rowIndex}-${day}`;
-          if (data[key]) count++;
+          if (virtueData.value[key]) count++;
         }
       });
       
@@ -228,11 +243,10 @@ createApp({
     
     const focusCheckedDays = computed(() => {
       let count = 0;
-      const data = loadFromStorage('virtueData', {});
       
       for (let day = 0; day < 7; day++) {
         const key = `${displayWeek.value}-${currentFocus.value}-${day}`;
-        if (data[key]) count++;
+        if (virtueData.value[key]) count++;
       }
       
       return count;
@@ -256,42 +270,57 @@ createApp({
       }
     });
     
+    // 使用ref存储virtueData，而不是computed，以便可以直接修改
+    const virtueData = ref(loadFromStorage('virtueData', {}));
+    
     // 方法
     const isChecked = (rowIndex, day) => {
-      const data = loadFromStorage('virtueData', {});
       const key = `${displayWeek.value}-${rowIndex}-${day}`;
-      return !!data[key];
+      return !!virtueData.value[key];
     };
     
     const toggleCheck = (rowIndex, day) => {
-      const data = loadFromStorage('virtueData', {});
       const key = `${displayWeek.value}-${rowIndex}-${day}`;
-      data[key] = !data[key];
-      saveToStorage('virtueData', data);
+      // 直接修改ref的值，确保UI立即更新
+      virtueData.value[key] = !virtueData.value[key];
+      saveToStorage('virtueData', virtueData.value);
       
       // 更新连续打卡
       updateStreak();
     };
     
     const updateStreak = () => {
-      const today = new Date().toDateString();
-      const data = loadFromStorage('virtueData', {});
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // 设置时间为当天的0点，便于比较
+      const todayString = today.toDateString();
       
       // 检查今天是否有打卡
       let todayChecked = false;
-      virtues.value.forEach((virtue, rowIndex) => {
+      // 使用普通for循环代替forEach，这样可以使用break跳出循环
+      outerLoop: for (let rowIndex = 0; rowIndex < virtues.value.length; rowIndex++) {
         for (let day = 0; day < 7; day++) {
           const key = `${currentWeek.value}-${rowIndex}-${day}`;
-          if (data[key]) {
+          if (virtueData.value[key]) {
             todayChecked = true;
+            break outerLoop; // 使用标签跳出嵌套循环
           }
         }
-      });
+      }
       
       if (todayChecked) {
-        if (streakData.value.lastDate !== today) {
-          if (streakData.value.lastDate === null || 
-              new Date(streakData.value.lastDate).getTime() === new Date(today).getTime() - 24 * 60 * 60 * 1000) {
+        if (streakData.value.lastDate !== todayString) {
+          // 计算上次打卡日期
+          let lastDate = null;
+          if (streakData.value.lastDate) {
+            lastDate = new Date(streakData.value.lastDate);
+            lastDate.setHours(0, 0, 0, 0);
+          }
+          
+          // 检查是否是连续打卡
+          const isConsecutive = lastDate === null || 
+                               (today.getTime() - lastDate.getTime()) === 24 * 60 * 60 * 1000;
+          
+          if (isConsecutive) {
             streakData.value.current++;
             if (streakData.value.current > streakData.value.best) {
               streakData.value.best = streakData.value.current;
@@ -299,7 +328,8 @@ createApp({
           } else {
             streakData.value.current = 1;
           }
-          streakData.value.lastDate = today;
+          
+          streakData.value.lastDate = todayString;
           saveToStorage('streakData', streakData.value);
         }
       }
@@ -327,34 +357,35 @@ createApp({
     
     const resetWeek = () => {
       if (confirm("确定要重置本周的所有打卡数据吗？")) {
-        const data = loadFromStorage('virtueData', {});
-        
-        // 删除本周数据
-        Object.keys(data).forEach(key => {
-          if (key.startsWith(displayWeek.value + "-")) {
-            delete data[key];
-          }
-        });
-        
-        saveToStorage('virtueData', data);
+        try {
+          // 删除本周数据
+          Object.keys(virtueData.value).forEach(key => {
+            if (key.startsWith(displayWeek.value + "-")) {
+              delete virtueData.value[key];
+            }
+          });
+          
+          // 创建一个新对象触发响应式更新
+          virtueData.value = {...virtueData.value};
+          saveToStorage('virtueData', virtueData.value);
+          console.log(`第${displayWeek.value}周数据已重置`);
+        } catch (error) {
+          console.error('重置周数据失败:', error);
+          alert('重置数据时发生错误，请稍后再试');
+        }
       }
     };
     
     const previousWeek = () => {
-      // 不允许周数小于1
-      if (displayWeek.value > 1) {
-        displayWeek.value--;
-      } else {
-        alert("不能查看第0周或负数周！");
-      }
+      displayWeek.value--;
     };
     
     const nextWeek = () => {
       // 不允许进入未来的周数
       if (displayWeek.value < currentWeek.value) {
         displayWeek.value++;
-      } else {
-        alert("不能进入未来的周数！");
+      } else if (displayWeek.value === currentWeek.value) {
+        alert("已经是当前周，不能进入未来的周数！");
       }
     };
     
@@ -393,6 +424,88 @@ createApp({
       document.addEventListener('keydown', handleKeydown);
     });
     
+    // 数据导出功能
+    const exportData = () => {
+      try {
+        const dataToExport = {
+          virtueData: virtueData.value,
+          streakData: streakData.value,
+          notes: notes.value,
+          currentFocus: currentFocus.value,
+          exportDate: new Date().toISOString()
+        };
+        
+        const dataStr = JSON.stringify(dataToExport);
+        const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+        
+        const exportFileName = `franklin-virtues-backup-${new Date().toISOString().slice(0,10)}.json`;
+        
+        const linkElement = document.createElement('a');
+        linkElement.setAttribute('href', dataUri);
+        linkElement.setAttribute('download', exportFileName);
+        linkElement.click();
+        
+        return true;
+      } catch (error) {
+        console.error('导出数据失败:', error);
+        alert('导出数据失败，请稍后再试');
+        return false;
+      }
+    };
+    
+    // 数据导入功能
+    const importData = (event) => {
+      try {
+        const file = event.target.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const importedData = JSON.parse(e.target.result);
+            
+            // 验证导入的数据格式
+            if (!importedData.virtueData || !importedData.streakData) {
+              throw new Error('导入的数据格式不正确');
+            }
+            
+            // 确认导入
+            if (confirm(`确定要导入 ${importedData.exportDate ? new Date(importedData.exportDate).toLocaleString() : '未知日期'} 的数据吗？这将覆盖当前数据。`)) {
+              // 保存导入的数据
+              saveToStorage('virtueData', importedData.virtueData);
+              saveToStorage('streakData', importedData.streakData);
+              saveToStorage('notes', importedData.notes || []);
+              saveToStorage('currentFocus', importedData.currentFocus || 0);
+              
+              // 直接更新响应式数据，无需刷新页面
+              virtueData.value = importedData.virtueData;
+              streakData.value = importedData.streakData;
+              notes.value = importedData.notes || [];
+              currentFocus.value = importedData.currentFocus || 0;
+              
+              alert('数据导入成功！');
+            }
+          } catch (error) {
+            console.error('解析导入数据失败:', error);
+            alert('导入的文件格式不正确，请选择有效的备份文件');
+          }
+        };
+        reader.readAsText(file);
+      } catch (error) {
+        console.error('导入数据失败:', error);
+        alert('导入数据失败，请稍后再试');
+      }
+    };
+    
+    // 创建文件输入元素
+    const createImportInput = () => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json';
+      input.onchange = importData;
+      input.click();
+    };
+    
     return {
       // 数据
       virtues,
@@ -426,7 +539,9 @@ createApp({
       previousWeek,
       nextWeek,
       goToCurrentWeek,
-      saveNote
+      saveNote,
+      exportData,
+      createImportInput
     };
   }
-}).mount('#app'); 
+}).mount('#app');
