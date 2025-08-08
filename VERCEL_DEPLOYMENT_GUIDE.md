@@ -139,7 +139,26 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 2. 在 Vercel 项目设置中更新 `CLIENT_URL` 环境变量
 3. 重新部署项目
 
-### 4.2 测试应用
+### 4.2 解决 "Failed to fetch" 错误
+如果遇到登录时出现 "Failed to fetch" 错误，请按以下步骤操作：
+
+1. **推送最新代码**：
+   ```bash
+   git push origin main
+   ```
+
+2. **在 Vercel 中重新部署**：
+   - 进入 Vercel 项目控制台
+   - 点击 "Deployments" 标签页
+   - 点击最新部署右侧的 "..." 菜单
+   - 选择 "Redeploy"
+
+3. **检查环境变量**：
+   - 确保 `MONGODB_URI` 正确设置
+   - 确保 `CLIENT_URL` 设置为您的 Vercel 域名
+   - 确保 `JWT_SECRET` 已设置
+
+### 4.3 测试应用
 1. 访问您的 Vercel 域名
 2. 尝试注册新用户
 3. 测试登录和美德记录功能
@@ -155,19 +174,30 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 ### 常见问题
 
-**1. 数据库连接失败**
+**1. "Failed to fetch" 登录错误**
+- **原因**：API 请求无法到达服务器
+- **解决方案**：
+  - 确保已推送最新代码到 GitHub（包含修复的 API 配置）
+  - 在 Vercel 中重新部署项目
+  - 检查环境变量 `MONGODB_URI` 是否正确设置
+  - 确认 `CLIENT_URL` 环境变量设置为您的 Vercel 域名
+
+**2. 数据库连接失败**
 - 检查 MongoDB Atlas 网络访问设置
 - 确认连接字符串格式正确
 - 验证用户名密码
+- 确保连接字符串末尾包含数据库名：`/franklin-virtues`
 
-**2. API 请求失败**
+**3. API 请求失败**
 - 检查 `vercel.json` 路由配置
 - 确认环境变量设置正确
 - 查看 Vercel 函数日志
+- 确保 API 路由以 `/api/` 开头
 
-**3. 静态文件加载失败**
+**4. 静态文件加载失败**
 - 确认文件路径正确
 - 检查 `vercel.json` 构建配置
+- 清除浏览器缓存
 
 ### 查看日志
 1. 在 Vercel 控制台点击项目
