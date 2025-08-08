@@ -1,48 +1,18 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/index.js",
-      "use": "@vercel/node",
-      "config": {
-        "maxLambdaSize": "50mb"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/index.js"
-    },
-    {
-      "src": "/(.*\\.(css|js|html))",
-      "headers": {
-        "Cache-Control": "public, max-age=31536000, immutable"
-      }
-    },
-    {
-      "src": "/styles.css",
-      "dest": "/styles.css"
-    },
-    {
-      "src": "/app-fullstack.js",
-      "dest": "/app-fullstack.js"
-    },
-    {
-      "src": "/shared-utils.js",
-      "dest": "/shared-utils.js"
-    },
-    {
-      "src": "/",
-      "dest": "/index-fullstack.html"
-    }
-  ],
   "functions": {
-    "api/index.js": {
-      "maxDuration": 30
+    "api/*.js": {
+      "runtime": "nodejs18.x"
     }
   },
-  "env": {
-    "NODE_ENV": "production"
-  }
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index-fullstack.html"
+    }
+  ]
 }

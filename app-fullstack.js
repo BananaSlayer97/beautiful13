@@ -22,21 +22,39 @@ const api = {
 
   // 通用请求方法
   async request(url, options = {}) {
+    const fullUrl = `${API_BASE_URL}${url}`;
+    console.log('🔗 API请求:', fullUrl);
+    
     try {
-      const response = await fetch(`${API_BASE_URL}${url}`, {
+      const response = await fetch(fullUrl, {
         headers: this.getAuthHeaders(),
         ...options
       });
       
-      const data = await response.json();
+      console.log('📡 响应状态:', response.status, response.statusText);
       
       if (!response.ok) {
-        throw new Error(data.message || '请求失败');
+        const errorText = await response.text();
+        console.error('❌ 响应错误:', errorText);
+        throw new Error(`请求失败 (${response.status}): ${errorText}`);
       }
+      
+      const data = await response.json();
+      console.log('✅ 响应数据:', data);
       
       return data;
     } catch (error) {
-      console.error('API请求错误:', error);
+      console.error('🚨 API请求错误:', {
+        url: fullUrl,
+        error: error.message,
+        stack: error.stack
+      });
+      
+      // 提供更友好的错误信息
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        throw new Error('网络连接失败，请检查网络或稍后重试');
+      }
+      
       throw error;
     }
   },

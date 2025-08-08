@@ -8,17 +8,16 @@ const app = express();
 const PORT = process.env.PORT || 3003;
 
 // 中间件
-// CORS配置 - 支持生产环境
-const corsOptions = {
-  origin: process.env.CLIENT_URL || process.env.NODE_ENV === 'production' 
-    ? ['https://*.vercel.app', 'https://localhost:3000'] 
-    : ['http://localhost:3000', 'http://localhost:3003'],
+// CORS配置 - 允许所有来源（生产环境临时解决方案）
+app.use(cors({
+  origin: true,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
-};
+}));
 
-app.use(cors(corsOptions));
+// 添加预检请求处理
+app.options('*', cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../')));
 
