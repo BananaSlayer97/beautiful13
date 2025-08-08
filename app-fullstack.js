@@ -1,6 +1,9 @@
 // Vue 3 应用 - 富兰克林13美德养成系统 - 全栈版
 const { createApp, ref, computed, onMounted, watch } = Vue;
 
+// 从共享工具中获取数据和函数
+const { virtuesData, getCurrentWeek, getWeekDateRange, formatDate, formatDateForAPI } = window.SharedUtils;
+
 // API配置
 const API_BASE_URL = 'http://localhost:3003/api';
 
@@ -83,171 +86,6 @@ const api = {
   }
 };
 
-// 13 项美德数据
-const virtuesData = [
-  { 
-    name: "1. 节制", 
-    desc: "食不过饱，饮不过量",
-    tips: [
-      "控制饮食量，吃到七分饱就停止",
-      "避免过量饮酒，保持清醒",
-      "培养对欲望的自我控制能力",
-      "在购物前思考是否真的需要"
-    ]
-  },
-  { 
-    name: "2. 沉默", 
-    desc: "言必有益，避免闲谈",
-    tips: [
-      "说话前先思考是否有必要",
-      "避免八卦和负面言论",
-      "多听少说，学会倾听",
-      "用沉默来避免不必要的冲突"
-    ]
-  },
-  { 
-    name: "3. 秩序", 
-    desc: "物归其位，事按时做",
-    tips: [
-      "保持工作环境整洁有序",
-      "制定每日计划并严格执行",
-      "为每样物品安排固定位置",
-      "按时完成承诺的任务"
-    ]
-  },
-  { 
-    name: "4. 决心", 
-    desc: "下定决心做该做之事",
-    tips: [
-      "设定明确的目标并坚持执行",
-      "克服拖延，立即行动",
-      "培养意志力，不轻易放弃",
-      "将大目标分解为小步骤"
-    ]
-  },
-  { 
-    name: "5. 节俭", 
-    desc: "花钱须于己于人有利",
-    tips: [
-      "制定预算并严格执行",
-      "避免冲动消费",
-      "投资于自我提升",
-      "为未来储蓄和规划"
-    ]
-  },
-  { 
-    name: "6. 勤勉", 
-    desc: "珍惜时间，用于有益之事",
-    tips: [
-      "合理规划时间，提高效率",
-      "避免浪费时间在无意义的事情上",
-      "持续学习新知识和技能",
-      "保持专注，一次只做一件事"
-    ]
-  },
-  { 
-    name: "7. 诚实", 
-    desc: "不欺骗，思想纯洁公正",
-    tips: [
-      "始终说真话，即使困难",
-      "承认错误并承担责任",
-      "保持内心的诚实和正直",
-      "避免任何形式的欺骗"
-    ]
-  },
-  { 
-    name: "8. 正义", 
-    desc: "不损人利己，尽责助人",
-    tips: [
-      "公平对待每个人",
-      "帮助需要帮助的人",
-      "不占他人便宜",
-      "为正义发声"
-    ]
-  },
-  { 
-    name: "9. 中庸", 
-    desc: "避免极端，忍让化解怨恨",
-    tips: [
-      "保持平衡，避免走极端",
-      "学会妥协和忍让",
-      "控制情绪，理性处理冲突",
-      "寻求中间道路"
-    ]
-  },
-  { 
-    name: "10. 清洁", 
-    desc: "身体、衣着、居所洁净",
-    tips: [
-      "保持个人卫生",
-      "整理居住和工作环境",
-      "穿着得体整洁",
-      "培养良好的生活习惯"
-    ]
-  },
-  { 
-    name: "11. 平静", 
-    desc: "不为琐事扰乱心神",
-    tips: [
-      "学会放松和冥想",
-      "不被小事困扰",
-      "保持内心的平静",
-      "培养抗压能力"
-    ]
-  },
-  { 
-    name: "12. 贞洁", 
-    desc: "节欲保健康，不损名誉",
-    tips: [
-      "保持身心的纯洁",
-      "避免不当行为",
-      "尊重自己和他人",
-      "培养高尚的品德"
-    ]
-  },
-  { 
-    name: "13. 谦逊", 
-    desc: "效法耶稣与苏格拉底",
-    tips: [
-      "承认自己的不足",
-      "虚心学习他人优点",
-      "不炫耀成就",
-      "保持开放和谦虚的态度"
-    ]
-  }
-];
-
-// 工具函数
-const getCurrentWeek = () => {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), 0, 1);
-  const diff = now - start + (start.getTimezoneOffset() - now.getTimezoneOffset()) * 60 * 1000;
-  const oneWeek = 1000 * 60 * 60 * 24 * 7;
-  return Math.floor(diff / oneWeek) + 1;
-};
-
-const getWeekDateRange = () => {
-  const now = new Date();
-  const currentDay = now.getDay();
-  const mondayOffset = currentDay === 0 ? 6 : currentDay - 1;
-  
-  const monday = new Date(now);
-  monday.setDate(now.getDate() - mondayOffset);
-  
-  const sunday = new Date(monday);
-  sunday.setDate(monday.getDate() + 6);
-  
-  return { monday, sunday };
-};
-
-const formatDate = (date) => {
-  return `${date.getMonth() + 1}/${date.getDate()}`;
-};
-
-const formatDateForAPI = (date) => {
-  return date.toISOString().split('T')[0];
-};
-
 // Vue应用
 createApp({
   setup() {
@@ -294,12 +132,13 @@ createApp({
       const displayMonday = new Date(monday);
       displayMonday.setDate(monday.getDate() + (weekDiff * 7));
       
+      const dayNames = ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'];
       const days = [];
       for (let i = 0; i < 7; i++) {
         const day = new Date(displayMonday);
         day.setDate(displayMonday.getDate() + i);
         days.push({
-          dayOfWeek: `星期${i + 1}`,
+          dayOfWeek: dayNames[i],
           date: `${day.getMonth() + 1}/${day.getDate()}`,
           dayIndex: i,
           fullDate: day
@@ -437,7 +276,18 @@ createApp({
 
     // 美德操作方法
     const getVirtueStatus = (virtueIndex, dayIndex) => {
-      const record = weekRecords.value[dayIndex];
+      const day = weekDays.value[dayIndex];
+      if (!day) return false;
+      
+      // 根据日期查找对应的记录
+      const record = weekRecords.value.find(r => {
+        const recordDate = new Date(r.date);
+        const dayDate = new Date(day.fullDate);
+        return recordDate.getFullYear() === dayDate.getFullYear() &&
+               recordDate.getMonth() === dayDate.getMonth() &&
+               recordDate.getDate() === dayDate.getDate();
+      });
+      
       if (!record || !record.virtues) return false;
       
       const virtue = record.virtues.get ? 
@@ -459,13 +309,6 @@ createApp({
     const updateVirtueStatus = async (virtueIndex, dayIndex, completed) => {
       try {
         const day = weekDays.value[dayIndex];
-        
-        // 只允许点击今天的日期
-        if (!isToday(day.fullDate)) {
-          alert('只能修改今天的打卡记录！');
-          return;
-        }
-        
         const date = formatDateForAPI(day.fullDate);
         
         await api.virtues.updateVirtue(date, {
@@ -485,10 +328,9 @@ createApp({
       }
     };
 
-    // 检查某个日期是否可以点击（只有今天可以点击）
+    // 检查某个日期是否可以点击（所有日期都可以点击）
     const canClickDate = (dayIndex) => {
-      const day = weekDays.value[dayIndex];
-      return isToday(day.fullDate);
+      return true;
     };
 
     const updateFocus = async () => {

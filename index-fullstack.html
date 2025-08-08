@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>富兰克林13美德养成系统 - 全栈版</title>
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="shared-utils.js"></script>
   <link rel="stylesheet" href="styles.css">
   <style>
     /* 认证相关样式 */
@@ -112,20 +113,41 @@
       border-left: 4px solid #363;
     }
     
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    
+    .title-section {
+      text-align: left;
+      flex: 1;
+    }
+    
+    .title-section h1 {
+      margin-bottom: 5px;
+    }
+    
+    .title-section p {
+      margin: 0;
+    }
+    
     .user-info {
       display: flex;
       align-items: center;
-      gap: 15px;
+      gap: 10px;
       background: rgba(255,255,255,0.2);
-      padding: 10px 15px;
-      border-radius: 10px;
+      padding: 6px 10px;
+      border-radius: 8px;
       backdrop-filter: blur(10px);
       border: 1px solid rgba(255,255,255,0.3);
+      flex-shrink: 0;
     }
     
     .user-avatar {
-      width: 40px;
-      height: 40px;
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
       background: #fff;
       display: flex;
@@ -133,6 +155,7 @@
       justify-content: center;
       font-weight: bold;
       color: #667eea;
+      font-size: 0.8em;
     }
     
     .user-details {
@@ -141,11 +164,12 @@
     
     .user-name {
       font-weight: bold;
-      margin-bottom: 2px;
+      margin-bottom: 1px;
+      font-size: 0.9em;
     }
     
     .user-email {
-      font-size: 0.9em;
+      font-size: 0.8em;
       opacity: 0.8;
     }
     
@@ -153,10 +177,10 @@
       background: rgba(255,255,255,0.2);
       border: 1px solid rgba(255,255,255,0.3);
       color: white;
-      padding: 5px 10px;
-      border-radius: 5px;
+      padding: 4px 8px;
+      border-radius: 4px;
       cursor: pointer;
-      font-size: 0.9em;
+      font-size: 0.8em;
     }
     
     .logout-btn:hover {
@@ -245,19 +269,22 @@
     <!-- 已登录状态 - 显示主应用 -->
     <div v-else class="container">
       <div class="header">
-        <h1>🌟 富兰克林13美德养成系统 - 全栈版</h1>
-        <p>培养品德，成就更好的自己</p>
-        
-        <!-- 用户信息 -->
-        <div class="user-info">
-          <div class="user-avatar">
-            {{ user.username.charAt(0).toUpperCase() }}
+        <div class="header-top">
+          <div class="title-section">
+            <h1>🌟 富兰克林13美德养成系统 - 全栈版</h1>
+            <p>培养品德，成就更好的自己</p>
           </div>
-          <div class="user-details">
-            <div class="user-name">{{ user.profile?.displayName || user.username }}</div>
-            <div class="user-email">{{ user.email }}</div>
+          <!-- 用户信息 -->
+          <div class="user-info">
+            <div class="user-avatar">
+              {{ user.username.charAt(0).toUpperCase() }}
+            </div>
+            <div class="user-details">
+              <div class="user-name">{{ user.profile?.displayName || user.username }}</div>
+              <div class="user-email">{{ user.email }}</div>
+            </div>
+            <button @click="logout" class="logout-btn">退出登录</button>
           </div>
-          <button @click="logout" class="logout-btn">退出登录</button>
         </div>
         
         <div class="week-info">
@@ -316,16 +343,15 @@
                     <td class="virtue-name clickable" @click="openVirtueModal(virtue, rowIndex)" :title="'点击查看详情'">
                       {{ virtue.name }}
                     </td>
-                    <td v-for="day in 7" :key="day" 
+                    <td v-for="(day, dayIndex) in weekDays" :key="dayIndex" 
                         :class="{ 
-                          checked: getVirtueStatus(rowIndex, day-1),
-                          clickable: canClickDate(day-1),
-                          disabled: !canClickDate(day-1)
+                          checked: getVirtueStatus(rowIndex, dayIndex),
+                          clickable: true
                         }"
-                        @click="canClickDate(day-1) ? updateVirtueStatus(rowIndex, day-1, !getVirtueStatus(rowIndex, day-1)) : null"
-                        :title="canClickDate(day-1) ? '点击打卡' : '只能修改今天的记录'">
-                      <div class="day-number">{{ day }}</div>
-                      <div>{{ getVirtueStatus(rowIndex, day-1) ? '✓' : '○' }}</div>
+                        @click="updateVirtueStatus(rowIndex, dayIndex, !getVirtueStatus(rowIndex, dayIndex))"
+                        :title="'点击打卡'">
+                      <div class="day-number">{{ dayIndex + 1 }}</div>
+                      <div>{{ getVirtueStatus(rowIndex, dayIndex) ? '✓' : '○' }}</div>
                     </td>
                   </tr>
                 </tbody>
