@@ -2,40 +2,46 @@
   "version": 2,
   "builds": [
     {
-      "src": "server/app.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "index-fullstack.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "styles.css",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "app-fullstack.js",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "shared-utils.js",
-      "use": "@vercel/static"
+      "src": "api/index.js",
+      "use": "@vercel/node",
+      "config": {
+        "maxLambdaSize": "50mb"
+      }
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/server/app.js"
+      "dest": "/api/index.js"
     },
     {
-      "src": "/(.*\\.(css|js))",
-      "dest": "/$1"
+      "src": "/(.*\\.(css|js|html))",
+      "headers": {
+        "Cache-Control": "public, max-age=31536000, immutable"
+      }
+    },
+    {
+      "src": "/styles.css",
+      "dest": "/styles.css"
+    },
+    {
+      "src": "/app-fullstack.js",
+      "dest": "/app-fullstack.js"
+    },
+    {
+      "src": "/shared-utils.js",
+      "dest": "/shared-utils.js"
     },
     {
       "src": "/",
       "dest": "/index-fullstack.html"
     }
   ],
+  "functions": {
+    "api/index.js": {
+      "maxDuration": 30
+    }
+  },
   "env": {
     "NODE_ENV": "production"
   }

@@ -4,8 +4,10 @@ const { createApp, ref, computed, onMounted, watch } = Vue;
 // 从共享工具中获取数据和函数
 const { virtuesData, getCurrentWeek, getWeekDateRange, formatDate, formatDateForAPI } = window.SharedUtils;
 
-// API配置
-const API_BASE_URL = 'http://localhost:3003/api';
+// API配置 - 根据环境自动适配
+const API_BASE_URL = window.location.hostname === 'localhost' 
+  ? 'http://localhost:3003/api' 
+  : '/api';
 
 // API工具函数
 const api = {
