@@ -302,10 +302,65 @@ npm install
 3. 运行 `npm run server`
 
 ### 生产部署
-1. 设置生产环境的MongoDB连接
-2. 配置JWT密钥和其他环境变量
-3. 使用PM2或类似工具管理进程
-4. 配置反向代理（Nginx）
+
+#### 方式一：Docker部署（推荐）
+```bash
+# 1. 克隆项目并进入目录
+git clone <your-repo-url>
+cd beautiful13
+
+# 2. 配置环境变量
+cp .env.example .env
+# 编辑 .env 文件，设置生产环境配置
+
+# 3. 一键部署
+npm run deploy:prod
+# 或者手动执行
+./deploy.sh production
+
+# 4. 查看服务状态
+docker-compose ps
+docker-compose logs -f
+```
+
+#### 方式二：PM2部署
+```bash
+# 1. 安装PM2
+npm install -g pm2
+
+# 2. 安装依赖
+npm install --production
+
+# 3. 启动MongoDB
+sudo systemctl start mongod
+
+# 4. 启动应用
+npm run pm2:start
+
+# 5. 查看状态
+pm2 status
+pm2 logs franklin-virtues
+```
+
+#### 方式三：传统部署
+```bash
+# 1. 安装Node.js 18+和MongoDB
+# 2. 配置环境变量
+# 3. 安装依赖
+npm install --production
+# 4. 启动应用
+npm start
+```
+
+#### 部署检查清单
+- [ ] 配置生产环境的MongoDB连接
+- [ ] 设置强密码的JWT_SECRET
+- [ ] 配置HTTPS证书（推荐）
+- [ ] 设置防火墙规则
+- [ ] 配置域名和DNS
+- [ ] 设置日志轮转
+- [ ] 配置监控和告警
+- [ ] 备份策略
 
 ## 🤝 贡献和反馈
 

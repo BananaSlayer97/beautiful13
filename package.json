@@ -8,7 +8,17 @@
     "dev": "nodemon server/app.js",
     "client": "live-server --port=3000 --host=localhost",
     "server": "nodemon server/app.js",
-    "build": "echo 'Build completed'"
+    "build": "echo 'Build completed'",
+    "deploy:dev": "./deploy.sh development",
+    "deploy:prod": "./deploy.sh production",
+    "docker:build": "docker build -t franklin-virtues .",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "pm2:start": "pm2 start ecosystem.config.js --env production",
+    "pm2:stop": "pm2 stop franklin-virtues",
+    "pm2:restart": "pm2 restart franklin-virtues",
+    "pm2:logs": "pm2 logs franklin-virtues"
   },
   "keywords": [
     "franklin",
