@@ -1,0 +1,42 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "server/app.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "index-fullstack.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "styles.css",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "app-fullstack.js",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "shared-utils.js",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/server/app.js"
+    },
+    {
+      "src": "/(.*\\.(css|js))",
+      "dest": "/$1"
+    },
+    {
+      "src": "/",
+      "dest": "/index-fullstack.html"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
+}
