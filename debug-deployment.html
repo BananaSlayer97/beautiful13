@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>部署诊断工具</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-item {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #f9f9f9;
+        }
+        .test-item h3 {
+            margin: 0 0 10px 0;
+            color: #555;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-weight: bold;
+            display: inline-block;
+            margin: 5px 0;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 3px;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 富兰克林美德系统 - 部署诊断工具</h1>
+        
+        <div class="test-item">
+            <h3>1. 环境检测</h3>
+            <div id="env-status">检测中...</div>
+            <div class="log" id="env-log"></div>
+        </div>
+        
+        <div class="test-item">
+            <h3>2. API 连接测试</h3>
+            <button onclick="testAPI()">测试 API 连接</button>
+            <div id="api-status"></div>
+            <div class="log" id="api-log"></div>
+        </div>
+        
+        <div class="test-item">
+            <h3>3. 健康检查</h3>
+            <button onclick="testHealth()">检查服务器健康状态</button>
+            <div id="health-status"></div>
+            <div class="log" id="health-log"></div>
+        </div>
+        
+        <div class="test-item">
+            <h3>4. 认证测试</h3>
+            <button onclick="testAuth()">测试认证端点</button>
+            <div id="auth-status"></div>
+            <div class="log" id="auth-log"></div>
+        </div>
+        
+        <div class="test-item">
+            <h3>5. 网络诊断</h3>
+            <button onclick="runNetworkDiagnostics()">运行网络诊断</button>
+            <div id="network-status"></div>
+            <div class="log" id="network-log"></div>
+        </div>
+    </div>
+
+    <script>
+        // 环境检测
+        function detectEnvironment() {
+            const hostname = window.location.hostname;
+            const protocol = window.location.protocol;
+            const port = window.location.port;
+            
+            let envType = 'unknown';
+            let apiBaseUrl = '';
+            
+            if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                envType = 'local';
+                apiBaseUrl = 'http://localhost:3003/api';
+            } else if (hostname.includes('vercel.app')) {
+                envType = 'vercel';
+                apiBaseUrl = '/api';
+            } else {
+                envType = 'production';
+                apiBaseUrl = '/api';
+            }
+            
+            const envInfo = {
+                hostname,
+                protocol,
+                port,
+                envType,
+                apiBaseUrl,
+                userAgent: navigator.userAgent
+            };
+            
+            document.getElementById('env-log').textContent = JSON.stringify(envInfo, null, 2);
+            document.getElementById('env-status').innerHTML = 
+                `<span class="status info">环境: ${envType}</span><br>` +
+                `<span class="status info">API地址: ${apiBaseUrl}</span>`;
+            
+            return envInfo;
+        }
+        
+        // API连接测试
+        async function testAPI() {
+            const env = detectEnvironment();
+            const statusEl = document.getElementById('api-status');
+            const logEl = document.getElementById('api-log');
+            
+            statusEl.innerHTML = '<span class="status warning">测试中...</span>';
+            logEl.textContent = '';
+            
+            try {
+                const response = await fetch(env.apiBaseUrl + '/health');
+                const data = await response.json();
+                
+                logEl.textContent = `响应状态: ${response.status}\n` +
+                                   `响应数据: ${JSON.stringify(data, null, 2)}`;
+                
+                if (response.ok) {
+                    statusEl.innerHTML = '<span class="status success">✅ API连接正常</span>';
+                } else {
+                    statusEl.innerHTML = '<span class="status error">❌ API响应错误</span>';
+                }
+            } catch (error) {
+                logEl.textContent = `错误: ${error.message}\n堆栈: ${error.stack}`;
+                statusEl.innerHTML = '<span class="status error">❌ API连接失败</span>';
+            }
+        }
+        
+        // 健康检查
+        async function testHealth() {
+            const env = detectEnvironment();
+            const statusEl = document.getElementById('health-status');
+            const logEl = document.getElementById('health-log');
+            
+            statusEl.innerHTML = '<span class="status warning">检查中...</span>';
+            logEl.textContent = '';
+            
+            try {
+                const response = await fetch(env.apiBaseUrl + '/health', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                logEl.textContent = `状态码: ${response.status}\n` +
+                                   `响应头: ${JSON.stringify([...response.headers.entries()], null, 2)}\n` +
+                                   `响应体: ${JSON.stringify(data, null, 2)}`;
+                
+                if (response.ok && data.status === 'OK') {
+                    statusEl.innerHTML = '<span class="status success">✅ 服务器健康</span>';
+                } else {
+                    statusEl.innerHTML = '<span class="status warning">⚠️ 服务器状态异常</span>';
+                }
+            } catch (error) {
+                logEl.textContent = `错误类型: ${error.name}\n错误信息: ${error.message}\n堆栈: ${error.stack}`;
+                statusEl.innerHTML = '<span class="status error">❌ 健康检查失败</span>';
+            }
+        }
+        
+        // 认证测试
+        async function testAuth() {
+            const env = detectEnvironment();
+            const statusEl = document.getElementById('auth-status');
+            const logEl = document.getElementById('auth-log');
+            
+            statusEl.innerHTML = '<span class="status warning">测试中...</span>';
+            logEl.textContent = '';
+            
+            try {
+                // 测试认证端点是否可访问
+                const response = await fetch(env.apiBaseUrl + '/auth/verify', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const responseText = await response.text();
+                
+                logEl.textContent = `状态码: ${response.status}\n` +
+                                   `响应: ${responseText}`;
+                
+                if (response.status === 401) {
+                    statusEl.innerHTML = '<span class="status success">✅ 认证端点正常 (未授权响应符合预期)</span>';
+                } else if (response.ok) {
+                    statusEl.innerHTML = '<span class="status success">✅ 认证端点可访问</span>';
+                } else {
+                    statusEl.innerHTML = '<span class="status warning">⚠️ 认证端点响应异常</span>';
+                }
+            } catch (error) {
+                logEl.textContent = `错误: ${error.message}\n堆栈: ${error.stack}`;
+                statusEl.innerHTML = '<span class="status error">❌ 认证端点不可访问</span>';
+            }
+        }
+        
+        // 网络诊断
+        async function runNetworkDiagnostics() {
+            const statusEl = document.getElementById('network-status');
+            const logEl = document.getElementById('network-log');
+            
+            statusEl.innerHTML = '<span class="status warning">诊断中...</span>';
+            
+            const diagnostics = {
+                timestamp: new Date().toISOString(),
+                location: window.location.href,
+                userAgent: navigator.userAgent,
+                connection: navigator.connection ? {
+                    effectiveType: navigator.connection.effectiveType,
+                    downlink: navigator.connection.downlink,
+                    rtt: navigator.connection.rtt
+                } : 'Not available',
+                cookiesEnabled: navigator.cookieEnabled,
+                language: navigator.language,
+                platform: navigator.platform,
+                onLine: navigator.onLine
+            };
+            
+            logEl.textContent = JSON.stringify(diagnostics, null, 2);
+            statusEl.innerHTML = '<span class="status info">📊 网络诊断完成</span>';
+        }
+        
+        // 页面加载时自动检测环境
+        window.onload = function() {
+            detectEnvironment();
+        };
+    </script>
+</body>
+</html>
