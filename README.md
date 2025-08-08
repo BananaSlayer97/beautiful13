@@ -62,7 +62,6 @@ npm run server
 
 # 6. 访问应用
 # 全栈版：http://localhost:3003
-# Vue版：http://localhost:3003/index-vue.html
 ```
 
 ### 快速体验（无需数据库）
@@ -91,13 +90,10 @@ beautiful13/
 │       └── memoryStorage.js # 内存存储实现
 ├── index-fullstack.html      # 全栈版前端
 ├── app-fullstack.js          # 全栈版JavaScript
-├── index-vue.html            # Vue版本HTML
-├── app-vue.js                # Vue版本JavaScript
 ├── styles.css                # 样式文件
 ├── package.json              # 项目依赖
 ├── .env.example              # 环境变量示例
 ├── .gitignore                # Git忽略文件
-├── Vue学习指南.md             # Vue学习指南
 └── README.md                 # 项目说明
 ```
 
@@ -125,11 +121,7 @@ beautiful13/
    - JWT令牌管理
    - 错误处理和用户反馈
 
-4. **Vue.js框架**（Vue版本）
-   - 响应式数据
-   - 计算属性
-   - 模板语法
-   - 组件化思维
+
 
 #### 后端技术
 1. **Node.js和Express**
@@ -158,16 +150,16 @@ beautiful13/
 
 ### 技术栈对比
 
-| 特性 | 全栈版 | Vue版 | 内存版 |
-|------|--------|-------|--------|
-| 前端框架 | 原生JavaScript | Vue 3 | 原生JavaScript |
-| 后端 | Node.js + Express | - | Node.js + Express |
-| 数据库 | MongoDB | - | 内存存储 |
-| 用户系统 | JWT认证 | - | 简单认证 |
-| 数据持久化 | ✅ | ❌ | ❌ |
-| 多用户支持 | ✅ | ❌ | ✅ |
-| 学习复杂度 | 高 | 中 | 中 |
-| 生产就绪 | ✅ | ❌ | ❌ |
+| 特性 | 全栈版 | 内存版 |
+|------|--------|--------|
+| 前端框架 | 原生JavaScript | 原生JavaScript |
+| 后端 | Node.js + Express | Node.js + Express |
+| 数据库 | MongoDB | 内存存储 |
+| 用户系统 | JWT认证 | 简单认证 |
+| 数据持久化 | ✅ | ❌ |
+| 多用户支持 | ✅ | ✅ |
+| 学习复杂度 | 高 | 中 |
+| 生产就绪 | ✅ | ❌ |
 
 ## 🛠️ 功能详解
 
@@ -206,7 +198,7 @@ beautiful13/
 1. **体验功能** - 先运行全栈版了解完整功能
 2. **学习前端基础** - HTML/CSS/JavaScript基础
 3. **理解API交互** - 学习前后端数据交互
-4. **尝试Vue版** - 体验框架开发的优势
+
 
 ### 后端学习路径
 1. **Node.js基础** - 理解服务器端JavaScript
