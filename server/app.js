@@ -19,7 +19,6 @@ app.use(cors({
 // 添加预检请求处理
 app.options('*', cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, '../')));
 
 // 数据库连接
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/franklin-virtues';
@@ -48,6 +47,9 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString()
   });
 });
+
+// 静态文件服务 - 放在API路由之后
+app.use(express.static(path.join(__dirname, '../')));
 
 // 服务前端文件
 app.get('/', (req, res) => {
