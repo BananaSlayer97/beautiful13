@@ -82,12 +82,12 @@ const api = {
     
     getWeekRecords: (year, week) => api.request(`/virtues/records/week/${year}/${week}`),
     
-    updateVirtue: (date, virtueData) => api.request(`/virtues/records/${date}/virtue`, {
+    updateVirtue: (date, virtueData) => api.request(`/virtues/records/virtue?date=${date}`, {
       method: 'PUT',
       body: JSON.stringify(virtueData)
     }),
     
-    updateReflection: (date, reflectionData) => api.request(`/virtues/records/${date}/reflection`, {
+    updateReflection: (date, reflectionData) => api.request(`/virtues/records/reflection?date=${date}`, {
       method: 'PUT',
       body: JSON.stringify(reflectionData)
     }),
