@@ -17,11 +17,7 @@
       "destination": "/api/virtues/records/reflection?date=$1"
     },
     {
-      "source": "/api/(.*)",
-      "destination": "/api/$1"
-    },
-    {
-      "source": "/(.*)",
+      "source": "/((?!api).*)",
       "destination": "/index-fullstack.html"
     }
   ]
