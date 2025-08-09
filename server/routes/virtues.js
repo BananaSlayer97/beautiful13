@@ -33,6 +33,25 @@ const dailyReflectionValidation = [
     .withMessage('评分必须在1-5之间')
 ];
 
+// 美德更新查询参数验证规则（用于 /records/virtue?date=xxx 格式）
+const updateVirtueQueryValidation = [
+  query('date')
+    .notEmpty()
+    .withMessage('日期参数是必需的')
+    .isISO8601()
+    .withMessage('日期格式必须是有效的ISO8601格式'),
+  body('virtueIndex')
+    .isInt({ min: 0, max: 12 })
+    .withMessage('美德索引必须在0-12之间'),
+  body('completed')
+    .isBoolean()
+    .withMessage('完成状态必须是布尔值'),
+  body('note')
+    .optional()
+    .isLength({ max: 500 })
+    .withMessage('笔记不能超过500个字符')
+];
+
 // 获取用户某日的美德记录
 router.get('/records/:date', authenticateToken, async (req, res) => {
   try {
@@ -106,10 +125,10 @@ router.get('/records/week/:year/:week', authenticateToken, async (req, res) => {
   }
 });
 
-// 更新美德完成状态
-router.put('/records/:date/virtue', 
+// 更新美德完成状态（查询参数格式：/records/virtue?date=xxx）
+router.put('/records/virtue', 
   authenticateToken, 
-  updateVirtueValidation, 
+  updateVirtueQueryValidation, 
   async (req, res) => {
     try {
       // 检查验证错误
@@ -121,7 +140,7 @@ router.put('/records/:date/virtue',
         });
       }
 
-      const { date } = req.params;
+      const { date } = req.query;  // 从查询参数获取日期
       const { virtueIndex, completed, note = '' } = req.body;
       const recordDate = new Date(date);
       
