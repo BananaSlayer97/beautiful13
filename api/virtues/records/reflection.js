@@ -190,6 +190,16 @@ module.exports = async (req, res) => {
       record.dailyRating = rating;
     }
     
+    // Fix any existing dailyReflection data format issues
+    if (record.dailyReflection && typeof record.dailyReflection === 'object') {
+      console.warn('Found object-type dailyReflection, converting to string:', record.dailyReflection);
+      if (record.dailyReflection.reflection !== undefined) {
+        record.dailyReflection = record.dailyReflection.reflection || '';
+      } else {
+        record.dailyReflection = '';
+      }
+    }
+    
     await record.save();
     
     res.status(200).json({
