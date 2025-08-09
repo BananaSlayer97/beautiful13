@@ -193,6 +193,22 @@ module.exports = async (req, res) => {
         }
       }
       
+      // Fix any corrupted virtues data (convert array to Map)
+      if (recordData.virtues && Array.isArray(recordData.virtues)) {
+        console.warn('Found corrupted virtues data (array format), converting to Map:', recordData.virtues);
+        const virtuesMap = new Map();
+        recordData.virtues.forEach(virtue => {
+          if (virtue.index !== undefined) {
+            virtuesMap.set(virtue.index.toString(), {
+              completed: virtue.completed || false,
+              note: virtue.note || '',
+              timestamp: virtue.timestamp || new Date()
+            });
+          }
+        });
+        recordData.virtues = virtuesMap;
+      }
+      
       // Create a new document instance with cleaned data
       record = new VirtueRecord(recordData);
     }
