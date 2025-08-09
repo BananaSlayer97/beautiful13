@@ -144,7 +144,7 @@ module.exports = async (req, res) => {
       return res.status(401).json({ message: '认证失败' });
     }
     
-    // Validate input
+    // Validate input - only extract expected fields
     const { virtueIndex, completed, note = '' } = req.body;
     
     if (typeof virtueIndex !== 'number' || virtueIndex < 0 || virtueIndex > 12) {
@@ -157,6 +157,13 @@ module.exports = async (req, res) => {
     
     if (note && note.length > 500) {
       return res.status(400).json({ message: '笔记不能超过500个字符' });
+    }
+    
+    // Ensure we don't accidentally set other fields from request body
+    const allowedFields = ['virtueIndex', 'completed', 'note'];
+    const extraFields = Object.keys(req.body).filter(key => !allowedFields.includes(key));
+    if (extraFields.length > 0) {
+      console.warn('Ignoring unexpected fields in virtue update:', extraFields);
     }
     
     // Parse date
@@ -182,7 +189,10 @@ module.exports = async (req, res) => {
         userId: user.userId,
         date: new Date(recordDate.setHours(0, 0, 0, 0)),
         year,
-        week
+        week,
+        // Explicitly set default values to prevent any contamination
+        dailyReflection: '',
+        dailyRating: null
       });
     }
     
