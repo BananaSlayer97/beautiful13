@@ -10,11 +10,11 @@
   "rewrites": [
     {
       "source": "/api/virtues/records/([^/]+)/virtue",
-      "destination": "/api/virtues/records/$1-virtue"
+      "destination": "/api/virtues/records/virtue?date=$1"
     },
     {
       "source": "/api/virtues/records/([^/]+)/reflection",
-      "destination": "/api/virtues/records/$1-reflection"
+      "destination": "/api/virtues/records/reflection?date=$1"
     },
     {
       "source": "/api/(.*)",
