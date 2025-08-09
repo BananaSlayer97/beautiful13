@@ -132,6 +132,32 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 2. 等待构建完成（通常需要1-3分钟）
 3. 部署成功后，您会获得一个 `.vercel.app` 域名
 
+## ⚠️ 重要：Node.js 版本配置
+
+**注意：本项目必须使用 Node.js 22.x 版本！**
+
+### 版本配置说明
+1. **package.json 中的 engines 字段**：
+   ```json
+   "engines": {
+     "node": "22.x"
+   }
+   ```
+
+2. **vercel.json 中的运行时配置**：
+   ```json
+   "functions": {
+     "api/index.js": {
+       "runtime": "@vercel/node@3.1.0"
+     }
+   }
+   ```
+
+### 重要提醒
+- **切勿将 Node.js 版本改为 18.x**，这会导致部署失败
+- 如果 Vercel 提示版本错误，请检查并确保使用 22.x 版本
+- 本项目的依赖和代码已针对 Node.js 22.x 进行优化
+
 ## 🔧 第四步：更新配置
 
 ### 4.1 更新 CLIENT_URL
