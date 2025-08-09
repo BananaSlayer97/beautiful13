@@ -210,7 +210,15 @@ module.exports = async (req, res) => {
       }
       
       // Create a new document instance with cleaned data
-      record = new VirtueRecord(recordData);
+      // Remove _id to avoid duplicate key errors when saving corrupted data
+      const { _id, ...cleanedData } = recordData;
+      record = new VirtueRecord(cleanedData);
+      
+      // If we had an existing record, preserve its _id
+      if (_id) {
+        record._id = _id;
+        record.isNew = false;
+      }
     }
     
     if (!record) {
