@@ -68,10 +68,13 @@ app.use('*', (req, res) => {
   res.status(404).json({ message: '接口不存在' });
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 服务器运行在 http://localhost:${PORT}`);
-  console.log(`📱 前端页面: http://localhost:${PORT}`);
-  console.log(`🔗 API健康检查: http://localhost:${PORT}/api/health`);
-});
+// 只在非 Vercel 环境下启动服务器
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`🚀 服务器运行在 http://localhost:${PORT}`);
+    console.log(`📱 前端页面: http://localhost:${PORT}`);
+    console.log(`🔗 API健康检查: http://localhost:${PORT}/api/health`);
+  });
+}
 
 module.exports = app;
