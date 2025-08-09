@@ -172,14 +172,30 @@ module.exports = async (req, res) => {
       return res.status(400).json({ message: '无效的日期格式' });
     }
     
-    // Find or create record
-    let record = await VirtueRecord.findOne({
+    // Find or create record using lean() to avoid validation errors on corrupted data
+    let recordData = await VirtueRecord.findOne({
       userId: user.userId,
       date: {
         $gte: new Date(recordDate.setHours(0, 0, 0, 0)),
         $lt: new Date(recordDate.setHours(23, 59, 59, 999))
       }
-    });
+    }).lean();
+    
+    let record;
+    if (recordData) {
+      // Fix any corrupted dailyReflection data before creating the document
+      if (recordData.dailyReflection && typeof recordData.dailyReflection === 'object') {
+        console.warn('Found corrupted dailyReflection data, fixing:', recordData.dailyReflection);
+        if (recordData.dailyReflection.reflection !== undefined) {
+          recordData.dailyReflection = recordData.dailyReflection.reflection || '';
+        } else {
+          recordData.dailyReflection = '';
+        }
+      }
+      
+      // Create a new document instance with cleaned data
+      record = new VirtueRecord(recordData);
+    }
     
     if (!record) {
       const year = recordDate.getFullYear();
