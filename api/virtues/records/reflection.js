@@ -27,18 +27,70 @@ async function connectToDatabase() {
 
 // Virtue Record Schema
 const virtueRecordSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  date: { type: Date, required: true },
-  year: { type: Number, required: true },
-  week: { type: Number, required: true },
-  virtues: [{
-    index: { type: Number, required: true },
-    completed: { type: Boolean, default: false },
-    note: { type: String, default: '' }
-  }],
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+    index: true
+  },
+  date: {
+    type: Date,
+    required: true,
+    index: true
+  },
+  week: {
+    type: Number,
+    required: true,
+    min: 1
+  },
+  year: {
+    type: Number,
+    required: true
+  },
+  // 13项美德的完成状态
+  virtues: {
+    type: Map,
+    of: {
+      completed: { type: Boolean, default: false },
+      note: { type: String, maxlength: 500, default: '' },
+      timestamp: { type: Date, default: Date.now }
+    },
+    default: function() {
+      const virtuesMap = new Map();
+      for (let i = 0; i < 13; i++) {
+        virtuesMap.set(i.toString(), {
+          completed: false,
+          note: '',
+          timestamp: new Date()
+        });
+      }
+      return virtuesMap;
+    }
+  },
+  // 当日重点美德
+  focusVirtue: {
+    type: Number,
+    min: 0,
+    max: 12,
+    default: null
+  },
+  // 当日总体感悟
   dailyReflection: {
-    reflection: { type: String, default: '' },
-    rating: { type: Number, min: 1, max: 5 }
+    type: String,
+    maxlength: 1000,
+    default: ''
+  },
+  // 当日评分 (1-5)
+  dailyRating: {
+    type: Number,
+    min: 1,
+    max: 5,
+    default: null
+  },
+  // 统计信息
+  stats: {
+    completedCount: { type: Number, default: 0 },
+    completionRate: { type: Number, default: 0 }
   }
 }, {
   timestamps: true
@@ -126,19 +178,16 @@ module.exports = async (req, res) => {
         userId: user.userId,
         date: new Date(recordDate.setHours(0, 0, 0, 0)),
         year,
-        week,
-        virtues: []
+        week
       });
     }
     
     // Update reflection
     if (reflection !== undefined) {
-      record.dailyReflection = record.dailyReflection || {};
-      record.dailyReflection.reflection = reflection;
+      record.dailyReflection = reflection;
     }
     if (rating !== undefined) {
-      record.dailyReflection = record.dailyReflection || {};
-      record.dailyReflection.rating = rating;
+      record.dailyRating = rating;
     }
     
     await record.save();
@@ -147,7 +196,8 @@ module.exports = async (req, res) => {
       message: '每日反思更新成功',
       record: {
         date: record.date,
-        dailyReflection: record.dailyReflection
+        dailyReflection: record.dailyReflection,
+        dailyRating: record.dailyRating
       }
     });
     
