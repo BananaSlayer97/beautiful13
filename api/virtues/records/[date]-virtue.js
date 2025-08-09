@@ -1,9 +1,11 @@
-// Vercel serverless function for updating daily reflection
+// Vercel serverless function for updating virtue status
 const app = require('../../../../server/app');
 
 module.exports = (req, res) => {
+  // Extract date from the filename pattern [date]-virtue
+  const date = req.query.date;
   // Set the request path to match the Express route
-  req.url = `/api/virtues/records/${req.query.date}/reflection`;
+  req.url = `/api/virtues/records/${date}/virtue`;
   
   // Forward the request to the Express app
   return app(req, res);

@@ -9,6 +9,14 @@
   },
   "rewrites": [
     {
+      "source": "/api/virtues/records/([^/]+)/virtue",
+      "destination": "/api/virtues/records/$1-virtue"
+    },
+    {
+      "source": "/api/virtues/records/([^/]+)/reflection",
+      "destination": "/api/virtues/records/$1-reflection"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "/api/$1"
     },
