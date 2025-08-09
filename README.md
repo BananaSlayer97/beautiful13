@@ -33,7 +33,7 @@
 ## 🚀 快速开始
 
 ### 环境要求
-- Node.js 22+
+- Node.js 20+
 - MongoDB 5.0+
 - npm 或 yarn
 
@@ -85,7 +85,7 @@ beautiful13/
 - JWT令牌管理
 
 ### 后端
-- Node.js 22.x
+- Node.js 20.x
 - Express.js
 - MongoDB + Mongoose
 - JWT认证
@@ -133,10 +133,10 @@ docker-compose ps
 
 ## ⚠️ 重要配置说明
 
-**Node.js版本要求：必须使用22.x版本**
-- package.json: `"node": "22.x"`
+**Node.js版本要求：必须使用20.x版本**
+- package.json: `"node": "20.x"`
 - vercel.json: `"@vercel/node@3.1.0"`
-- Dockerfile: `node:22-alpine`
+- Dockerfile: `node:20-alpine`
 
 **切勿将版本改为18.x，这会导致部署失败！**
 

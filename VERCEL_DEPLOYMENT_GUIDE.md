@@ -134,13 +134,13 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 ## ⚠️ 重要：Node.js 版本配置
 
-**注意：本项目必须使用 Node.js 22.x 版本！**
+**注意：本项目必须使用 Node.js 20.x 版本！**
 
 ### 版本配置说明
 1. **package.json 中的 engines 字段**：
    ```json
    "engines": {
-     "node": "22.x"
+     "node": "20.x"
    }
    ```
 
@@ -155,8 +155,8 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 ### 重要提醒
 - **切勿将 Node.js 版本改为 18.x**，这会导致部署失败
-- 如果 Vercel 提示版本错误，请检查并确保使用 22.x 版本
-- 本项目的依赖和代码已针对 Node.js 22.x 进行优化
+- 如果 Vercel 提示版本错误，请检查并确保使用 20.x 版本
+- 本项目的依赖和代码已针对 Node.js 20.x 进行优化
 
 ## 🔧 第四步：更新配置
 
